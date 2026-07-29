@@ -1,0 +1,66 @@
+{
+  "RaeumeDialog.tsx": {
+    "raumname": "z. B. Klavier-Studio 1",
+    "raumnummer": "z. B. R-201",
+    "etage": "z. B. 2. Obergeschoß",
+    "kapazitaet": "z. B. 12",
+    "ausstattung": "z. B. Klavier, Whiteboard",
+    "bemerkungen_raum": "Besonderheiten, Geräte-Status, Zugang...",
+    "verfuegbar": "Raum ist verfügbar"
+  },
+  "DozentenDialog.tsx": {
+    "vorname": "z. B. Anna",
+    "nachname": "z. B. Schmidt",
+    "email": "z. B. anna@musikschule.de",
+    "telefon": "z. B. 030 12345678",
+    "fachbereiche": "z. B. Klavier, Gitarre",
+    "qualifikationen": "Ausbildung, Zertifikate, Spezialisierung...",
+    "beschaeftigungsart": "Beschäftigungsform wählen",
+    "eintrittsdatum": "Wann tritt der Dozent ein?",
+    "bemerkungen_dozent": "Verfügbarkeit, Besonderheiten, Absprachen..."
+  },
+  "KurseWorkshopsDialog.tsx": {
+    "titel": "z. B. Anfänger-Klavier",
+    "kurstyp": "Ist es ein Kurs oder Workshop?",
+    "beschreibung": "Inhalte, Lernziele, Besonderheiten...",
+    "niveau": "Schwierigkeitsgrad wählen",
+    "dozent": "Dozent aus Liste wählen",
+    "raum": "In welchem Raum?",
+    "startdatum": "Wann startet der Kurs?",
+    "enddatum": "Wann endet der Kurs?",
+    "wochentag_uhrzeit": "z. B. Mo 18:00 – 19:00",
+    "max_teilnehmer": "z. B. 12",
+    "preis": "z. B. 120,00",
+    "status_kurs": "Aktueller Status wählen"
+  },
+  "TeilnehmerDialog.tsx": {
+    "vorname": "z. B. Maria",
+    "nachname": "z. B. Müller",
+    "geburtsdatum": "Wann ist der Geburtstag?",
+    "email": "z. B. maria@example.com",
+    "telefon": "z. B. 030 87654321",
+    "strasse": "z. B. Hauptstraße",
+    "hausnummer": "z. B. 42",
+    "plz": "z. B. 10115",
+    "ort": "z. B. Berlin",
+    "notfall_name": "z. B. Peter Müller",
+    "notfall_telefon": "z. B. 030 11111111",
+    "anmerkungen_tn": "Besondere Bedürfnisse, Hinweise, Allergien..."
+  },
+  "AnmeldungenDialog.tsx": {
+    "teilnehmer": "Teilnehmer aus Liste wählen",
+    "kurs": "Kurs oder Workshop wählen",
+    "anmeldedatum": "Anmeldedatum eingeben",
+    "status_anmeldung": "Anmeldestatus festlegen",
+    "bemerkungen_anmeldung": "Besondere Wünsche, Notizen..."
+  },
+  "ZahlungenDialog.tsx": {
+    "anmeldung": "Anmeldung aus Liste wählen",
+    "rechnungsnummer": "z. B. RG-2026-0042",
+    "betrag": "z. B. 120,00",
+    "zahlungsdatum": "Wann wurde gezahlt?",
+    "zahlungsart": "Zahlungsmethode wählen",
+    "zahlungsstatus": "Zahlungsstatus wählen",
+    "notizen_zahlung": "Referenz, Mahnung, Besonderheiten..."
+  }
+}
