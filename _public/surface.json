@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "pages": [
+    {
+      "slug": "kurs-anmeldung",
+      "component": "KursAnmeldung",
+      "title": "Kursanmeldung – Musikschule",
+      "endpoints": [
+        {
+          "entity": "kurse_&_workshops",
+          "op": "list",
+          "fields": ["titel", "kurstyp", "beschreibung", "niveau", "startdatum", "enddatum", "preis", "max_teilnehmer"],
+          "scope": "r.v_status_kurs == 'aktiv' or r.v_status_kurs == 'geplant'",
+          "scope_description": "zeigt nur aktive und geplante Kurse und Workshops",
+          "max_records": 50
+        },
+        {
+          "entity": "teilnehmer",
+          "op": "create",
+          "fields": ["vorname", "nachname", "email", "telefon"]
+        },
+        {
+          "entity": "anmeldungen",
+          "op": "create",
+          "fields": ["teilnehmer", "kurs", "anmeldedatum"],
+          "preset_fields": { "status_anmeldung": "angemeldet" }
+        }
+      ]
+    }
+  ]
+}

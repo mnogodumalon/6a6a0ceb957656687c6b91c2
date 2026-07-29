@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "flows": [
+    {
+      "path": "/intents/kurs-anlegen",
+      "label": "Kurs anlegen",
+      "description": "Neuen Kurs mit Dozent & Raum anlegen",
+      "file": "src/pages/intents/KursAnlegenPage.tsx",
+      "summary": "/**\n * Kurs anlegen — 4-Schritt-Wizard für eine Bildungsplattform.\n * Schritte: 1) Kursdaten eingeben → 2) Dozent auswählen → 3) Raum auswählen → 4) Zusammenfassung & erstellen.\n * Liest: dozenten, raeume. Schreibt: kurse_&_workshops (createKurseWorkshop).\n * Komponiert: IntentWizardShell, EntitySelectStep.\n */",
+      "components": [
+        "Button",
+        "EntitySelectStep",
+        "Input",
+        "IntentWizardShell",
+        "Textarea"
+      ],
+      "writes": [
+        "createKurseWorkshop"
+      ]
+    },
+    {
+      "path": "/intents/anmeldung-zahlung",
+      "label": "Anmeldung & Zahlung",
+      "description": "Teilnehmer anmelden und Zahlung erfassen",
+      "file": "src/pages/intents/AnmeldungZahlungPage.tsx",
+      "summary": "/**\n * Anmeldung & Zahlung — 4-Schritt-Wizard für eine Bildungsplattform.\n * Steps:\n *   1) Teilnehmer auswählen (oder neu anlegen)\n *   2) Kurs auswählen (gefiltert: status_kurs ≠ abgeschlossen)\n *   3) Anmeldung bestätigen & speichern (erstellt Anmeldungen-Record)\n *   4) Zahlung erfassen (erstellt Zahlungen-Record, verknüpft mit Anmeldung)\n * Reads: teilnehmer, kurseWorkshops.\n * Writes: anmeldungen (createAnmeldungenEntry), zahlungen (createZahlungenEntry).\n * Composes: IntentWizardShell, EntitySelectStep, StatusBadge.\n * Deep-linking: ?teilnehmerId=xxx überspringt zu Schritt 2, ?kursId=xxx zu Schritt 2 mit vorausgewähltem Kurs.\n */",
+      "components": [
+        "Button",
+        "EntitySelectStep",
+        "Input",
+        "IntentWizardShell",
+        "StatusBadge"
+      ],
+      "writes": [
+        "createAnmeldungenEntry",
+        "createTeilnehmerEntry",
+        "createZahlungenEntry"
+      ]
+    }
+  ],
+  "unregistered_pages": []
+}
