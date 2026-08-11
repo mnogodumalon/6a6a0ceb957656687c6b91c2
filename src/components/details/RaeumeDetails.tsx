@@ -4,6 +4,7 @@ import { extractRecordId } from '@/services/livingAppsService';
 import {
   RecordSection, RecordField, RecordRelation, RecordAttachments,
 } from '@/components/widgets/RecordView';
+import { t, appLabel, fieldLabel } from '@/i18n';
 import { SatelliteSection } from '@/components/SatelliteSection';
 
 export interface RaeumeDetailsProps {
@@ -25,20 +26,20 @@ export function RaeumeDetails({
 }: RaeumeDetailsProps) {
   return (
     <>
-      <RecordSection title="Details" cols={2}>
-        <RecordField label="Raumname" value={record.fields.raumname} format="text" />
-        <RecordField label="Raumnummer" value={record.fields.raumnummer} format="text" />
-        <RecordField label="Etage / Standort" value={record.fields.etage} format="text" />
-        <RecordField label="Kapazität (Personen)" value={record.fields.kapazitaet} format="text" />
-        <RecordField label="Ausstattung" value={Array.isArray(record.fields.ausstattung) ? record.fields.ausstattung.map((v: unknown) => (v && typeof v === 'object' && 'label' in v) ? (v as {label: unknown}).label : v).join(', ') : null} format="text" />
-        <RecordField label="Bemerkungen" value={record.fields.bemerkungen_raum} format="longtext" className="md:col-span-2" />
-        <RecordField label="Raum verfügbar" value={record.fields.verfuegbar} format="bool" />
+      <RecordSection title={t('details')} cols={2}>
+        <RecordField label={fieldLabel('raeume', 'raumname')} value={record.fields.raumname} format="text" />
+        <RecordField label={fieldLabel('raeume', 'raumnummer')} value={record.fields.raumnummer} format="text" />
+        <RecordField label={fieldLabel('raeume', 'etage')} value={record.fields.etage} format="text" />
+        <RecordField label={fieldLabel('raeume', 'kapazitaet')} value={record.fields.kapazitaet} format="text" />
+        <RecordField label={fieldLabel('raeume', 'ausstattung')} value={Array.isArray(record.fields.ausstattung) ? record.fields.ausstattung.map((v: unknown) => (v && typeof v === 'object' && 'label' in v) ? (v as {label: unknown}).label : v).join(', ') : null} format="text" />
+        <RecordField label={fieldLabel('raeume', 'bemerkungen_raum')} value={record.fields.bemerkungen_raum} format="longtext" className="md:col-span-2" />
+        <RecordField label={fieldLabel('raeume', 'verfuegbar')} value={record.fields.verfuegbar} format="bool" />
       </RecordSection>
 
       <SatelliteSection
-        title="Kurse & Workshops"
+        title={appLabel('kurse_workshops')}
         items={kurseWorkshopsList.filter(r => extractRecordId(r.fields.raum) === record.record_id)}
-        map={r => ({ name: r.fields.titel ?? 'Kurse & Workshops', meta: r.fields.startdatum })}
+        map={r => ({ name: r.fields.titel ?? appLabel('kurse_workshops'), meta: r.fields.startdatum })}
         onOpen={onOpenKurseWorkshops}
         onAdd={onAddKurseWorkshops}
         getKey={r => r.record_id}

@@ -31,15 +31,17 @@ import {
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { IconPencil, IconTrash, IconPlus, IconFilter, IconX, IconArrowsUpDown, IconArrowUp, IconArrowDown, IconSearch, IconCopy } from '@tabler/icons-react';
+import { t, appLabel, fieldLabels, lookupLabel, dateFnsLocale, dateFormat } from '@/i18n';
 import { format, parseISO } from 'date-fns';
-import { de } from 'date-fns/locale';
 
 function fmtDate(d?: string) {
   if (!d) return '—';
-  try { return format(parseISO(d), 'dd.MM.yyyy', { locale: de }); } catch { return d; }
+  try { return format(parseISO(d), dateFormat(), { locale: dateFnsLocale() }); } catch { return d; }
 }
 
-// Field metadata per entity for bulk edit and column filters
+// Field metadata per entity for bulk edit and column filters. `label` is the
+// BUILD-language fallback only — getFieldMeta() re-labels every entry (and every
+// lookup option) through the runtime catalog before anything renders it.
 const RAEUME_FIELDS = [
   { key: 'raumname', label: 'Raumname', type: 'string/text' },
   { key: 'raumnummer', label: 'Raumnummer', type: 'string/text' },
@@ -90,7 +92,7 @@ const TEILNEHMER_FIELDS = [
 ];
 const ANMELDUNGEN_FIELDS = [
   { key: 'teilnehmer', label: 'Teilnehmer', type: 'applookup/select', targetEntity: 'teilnehmer', targetAppId: 'TEILNEHMER', displayField: 'vorname' },
-  { key: 'kurs', label: 'Kurs / Workshop', type: 'applookup/select', targetEntity: 'kurse_&_workshops', targetAppId: 'KURSE_WORKSHOPS', displayField: 'titel' },
+  { key: 'kurs', label: 'Kurs / Workshop', type: 'applookup/select', targetEntity: 'kurse_workshops', targetAppId: 'KURSE_WORKSHOPS', displayField: 'titel' },
   { key: 'anmeldedatum', label: 'Anmeldedatum', type: 'date/date' },
   { key: 'status_anmeldung', label: 'Anmeldestatus', type: 'lookup/radio', options: [{ key: 'angemeldet', label: 'Angemeldet' }, { key: 'warteliste', label: 'Warteliste' }, { key: 'storniert', label: 'Storniert' }, { key: 'abgeschlossen', label: 'Abgeschlossen' }] },
   { key: 'bemerkungen_anmeldung', label: 'Bemerkungen', type: 'string/textarea' },
@@ -106,12 +108,12 @@ const ZAHLUNGEN_FIELDS = [
 ];
 
 const ENTITY_TABS = [
-  { key: 'raeume', label: 'Räume', pascal: 'Raeume' },
-  { key: 'dozenten', label: 'Dozenten', pascal: 'Dozenten' },
-  { key: 'kurse_&_workshops', label: 'Kurse & Workshops', pascal: 'KurseWorkshops' },
-  { key: 'teilnehmer', label: 'Teilnehmer', pascal: 'Teilnehmer' },
-  { key: 'anmeldungen', label: 'Anmeldungen', pascal: 'Anmeldungen' },
-  { key: 'zahlungen', label: 'Zahlungen', pascal: 'Zahlungen' },
+  { key: 'raeume', pascal: 'Raeume' },
+  { key: 'dozenten', pascal: 'Dozenten' },
+  { key: 'kurse_workshops', pascal: 'KurseWorkshops' },
+  { key: 'teilnehmer', pascal: 'Teilnehmer' },
+  { key: 'anmeldungen', pascal: 'Anmeldungen' },
+  { key: 'zahlungen', pascal: 'Zahlungen' },
 ] as const;
 
 type EntityKey = typeof ENTITY_TABS[number]['key'];
@@ -124,7 +126,7 @@ export default function AdminPage() {
   const [selectedIds, setSelectedIds] = useState<Record<EntityKey, Set<string>>>(() => ({
     'raeume': new Set(),
     'dozenten': new Set(),
-    'kurse_&_workshops': new Set(),
+    'kurse_workshops': new Set(),
     'teilnehmer': new Set(),
     'anmeldungen': new Set(),
     'zahlungen': new Set(),
@@ -132,7 +134,7 @@ export default function AdminPage() {
   const [filters, setFilters] = useState<Record<EntityKey, Record<string, string>>>(() => ({
     'raeume': {},
     'dozenten': {},
-    'kurse_&_workshops': {},
+    'kurse_workshops': {},
     'teilnehmer': {},
     'anmeldungen': {},
     'zahlungen': {},
@@ -152,7 +154,7 @@ export default function AdminPage() {
     switch (entity) {
       case 'raeume': return (data as any).raeume as Raeume[] ?? [];
       case 'dozenten': return (data as any).dozenten as Dozenten[] ?? [];
-      case 'kurse_&_workshops': return (data as any).kurseWorkshops as KurseWorkshops[] ?? [];
+      case 'kurse_workshops': return (data as any).kurseWorkshops as KurseWorkshops[] ?? [];
       case 'teilnehmer': return (data as any).teilnehmer as Teilnehmer[] ?? [];
       case 'anmeldungen': return (data as any).anmeldungen as Anmeldungen[] ?? [];
       case 'zahlungen': return (data as any).zahlungen as Zahlungen[] ?? [];
@@ -163,7 +165,7 @@ export default function AdminPage() {
   const getLookupLists = useCallback((entity: EntityKey) => {
     const lists: Record<string, any[]> = {};
     switch (entity) {
-      case 'kurse_&_workshops':
+      case 'kurse_workshops':
         lists.dozentenList = (data as any).dozenten ?? [];
         lists.raeumeList = (data as any).raeume ?? [];
         break;
@@ -184,11 +186,11 @@ export default function AdminPage() {
     if (!id) return '—';
     const lists = getLookupLists(entity);
     void fieldKey; // ensure used for noUnusedParameters
-    if (entity === 'kurse_&_workshops' && fieldKey === 'dozent') {
+    if (entity === 'kurse_workshops' && fieldKey === 'dozent') {
       const match = (lists.dozentenList ?? []).find((r: any) => r.record_id === id);
       return match?.fields.vorname ?? '—';
     }
-    if (entity === 'kurse_&_workshops' && fieldKey === 'raum') {
+    if (entity === 'kurse_workshops' && fieldKey === 'raum') {
       const match = (lists.raeumeList ?? []).find((r: any) => r.record_id === id);
       return match?.fields.raumname ?? '—';
     }
@@ -207,16 +209,29 @@ export default function AdminPage() {
     return String(url);
   }, [getLookupLists]);
 
+  // An EntityKey IS the app key, so the runtime catalog can re-label the static
+  // field metadata on every render (the tree remounts on a language switch).
+  // Only display labels change here — keys, types and option keys stay as built.
   const getFieldMeta = useCallback((entity: EntityKey) => {
-    switch (entity) {
-      case 'raeume': return RAEUME_FIELDS;
-      case 'dozenten': return DOZENTEN_FIELDS;
-      case 'kurse_&_workshops': return KURSEWORKSHOPS_FIELDS;
-      case 'teilnehmer': return TEILNEHMER_FIELDS;
-      case 'anmeldungen': return ANMELDUNGEN_FIELDS;
-      case 'zahlungen': return ZAHLUNGEN_FIELDS;
-      default: return [];
-    }
+    const raw: any[] = (() => {
+      switch (entity) {
+        case 'raeume': return RAEUME_FIELDS as any[];
+        case 'dozenten': return DOZENTEN_FIELDS as any[];
+        case 'kurse_workshops': return KURSEWORKSHOPS_FIELDS as any[];
+        case 'teilnehmer': return TEILNEHMER_FIELDS as any[];
+        case 'anmeldungen': return ANMELDUNGEN_FIELDS as any[];
+        case 'zahlungen': return ZAHLUNGEN_FIELDS as any[];
+        default: return [];
+      }
+    })();
+    const labels = fieldLabels(entity);
+    return raw.map((f: any) => ({
+      ...f,
+      label: labels[f.key] ?? f.label,
+      ...(f.options
+        ? { options: f.options.map((o: any) => ({ ...o, label: lookupLabel(entity, f.key, o.key) ?? o.label })) }
+        : {}),
+    }));
   }, []);
 
   const getFilteredRecords = useCallback((entity: EntityKey) => {
@@ -243,12 +258,14 @@ export default function AdminPage() {
           return true;
         }
         if (fm.type === 'lookup/select' || fm.type === 'lookup/radio') {
-          const label = val && typeof val === 'object' && 'label' in val ? val.label : '';
-          return String(label).toLowerCase().includes(fv.toLowerCase());
+          // The filter select carries the option KEY, which is locale-independent —
+          // the record's own label is in the build language and must not be matched.
+          const key = val && typeof val === 'object' && 'key' in val ? val.key : '';
+          return String(key) === fv;
         }
         if (fm.type.includes('multiplelookup')) {
           if (!Array.isArray(val)) return false;
-          return val.some((item: any) => String(item?.label ?? '').toLowerCase().includes(fv.toLowerCase()));
+          return val.some((item: any) => String(lookupLabel(entity, fm.key, item?.key) ?? item?.label ?? '').toLowerCase().includes(fv.toLowerCase()));
         }
         if (fm.type.includes('applookup')) {
           const display = getApplookupDisplay(entity, fm.key, val);
@@ -319,7 +336,7 @@ export default function AdminPage() {
         update: (id: string, fields: any) => LivingAppsService.updateDozentenEntry(id, fields),
         remove: (id: string) => LivingAppsService.deleteDozentenEntry(id),
       };
-      case 'kurse_&_workshops': return {
+      case 'kurse_workshops': return {
         create: (fields: any) => LivingAppsService.createKurseWorkshop(fields),
         update: (id: string, fields: any) => LivingAppsService.updateKurseWorkshop(id, fields),
         remove: (id: string) => LivingAppsService.deleteKurseWorkshop(id),
@@ -443,7 +460,7 @@ export default function AdminPage() {
     return (
       <div className="flex flex-col items-center justify-center py-32 gap-4">
         <p className="text-destructive">{error.message}</p>
-        <Button onClick={fetchAll}>Erneut versuchen</Button>
+        <Button onClick={fetchAll}>{t('retry')}</Button>
       </div>
     );
   }
@@ -455,11 +472,11 @@ export default function AdminPage() {
 
   return (
     <PageShell
-      title="Verwaltung"
-      subtitle="Alle Daten verwalten"
+      title={t('admin')}
+      subtitle={t('admin_subtitle')}
       action={
         <Button onClick={() => setCreateEntity(activeTab)} className="shrink-0">
-          <IconPlus className="h-4 w-4 mr-2" /> Hinzufügen
+          <IconPlus className="h-4 w-4 mr-2" /> {t('add')}
         </Button>
       }
     >
@@ -476,7 +493,7 @@ export default function AdminPage() {
                   : 'bg-muted text-muted-foreground hover:bg-muted/80'
               }`}
             >
-              {tab.label}
+              {appLabel(tab.key)}
               <Badge variant="secondary" className="ml-1 text-xs">{count}</Badge>
             </button>
           );
@@ -488,7 +505,7 @@ export default function AdminPage() {
           <div className="relative w-full max-w-sm">
             <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Suchen..."
+              placeholder={t('search')}
               value={search}
               onChange={e => setSearch(e.target.value)}
               className="pl-9 h-9"
@@ -496,31 +513,31 @@ export default function AdminPage() {
           </div>
           <Button variant="outline" size="sm" onClick={() => setShowFilters(f => !f)} className="gap-2">
             <IconFilter className="h-4 w-4" />
-            Filtern
+            {t('filter')}
             {activeFilterCount > 0 && (
               <Badge variant="secondary" className="ml-1">{activeFilterCount}</Badge>
             )}
           </Button>
           {activeFilterCount > 0 && (
             <Button variant="ghost" size="sm" onClick={() => clearEntityFilters(activeTab)}>
-              Filter zurücksetzen
+              {t('clear_filters')}
             </Button>
           )}
         </div>
         {sel.size > 0 && (
           <div className="flex items-center gap-2 flex-wrap bg-muted/60 rounded-lg px-3 py-1.5">
-            <span className="text-sm font-medium">{sel.size} ausgewählt</span>
+            <span className="text-sm font-medium">{sel.size} {t('selected')}</span>
             <Button variant="outline" size="sm" onClick={() => setBulkEditOpen(activeTab)}>
-              <IconPencil className="h-3.5 w-3.5 sm:mr-1" /> <span className="hidden sm:inline">Feld bearbeiten</span>
+              <IconPencil className="h-3.5 w-3.5 sm:mr-1" /> <span className="hidden sm:inline">{t('bulk_edit')}</span>
             </Button>
             <Button variant="outline" size="sm" onClick={() => handleBulkClone()}>
-              <IconCopy className="h-3.5 w-3.5 sm:mr-1" /> <span className="hidden sm:inline">Kopieren</span>
+              <IconCopy className="h-3.5 w-3.5 sm:mr-1" /> <span className="hidden sm:inline">{t('bulk_clone')}</span>
             </Button>
             <Button variant="destructive" size="sm" onClick={() => setDeleteTargets({ entity: activeTab, ids: Array.from(sel) })}>
-              <IconTrash className="h-3.5 w-3.5 sm:mr-1" /> <span className="hidden sm:inline">Ausgewählte löschen</span>
+              <IconTrash className="h-3.5 w-3.5 sm:mr-1" /> <span className="hidden sm:inline">{t('bulk_delete')}</span>
             </Button>
             <Button variant="ghost" size="sm" onClick={() => clearSelection(activeTab)}>
-              <IconX className="h-3.5 w-3.5 sm:mr-1" /> <span className="hidden sm:inline">Auswahl aufheben</span>
+              <IconX className="h-3.5 w-3.5 sm:mr-1" /> <span className="hidden sm:inline">{t('deselect_all')}</span>
             </Button>
           </div>
         )}
@@ -533,27 +550,27 @@ export default function AdminPage() {
               <label className="text-xs font-medium text-muted-foreground">{fm.label}</label>
               {fm.type === 'bool' ? (
                 <Select value={filters[activeTab]?.[fm.key] ?? ''} onValueChange={v => updateFilter(activeTab, fm.key, v === 'all' ? '' : v)}>
-                  <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Alle" /></SelectTrigger>
+                  <SelectTrigger className="h-8 text-xs"><SelectValue placeholder={t('all_values')} /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Alle</SelectItem>
-                    <SelectItem value="true">Ja</SelectItem>
-                    <SelectItem value="false">Nein</SelectItem>
+                    <SelectItem value="all">{t('all_values')}</SelectItem>
+                    <SelectItem value="true">{t('yes')}</SelectItem>
+                    <SelectItem value="false">{t('no')}</SelectItem>
                   </SelectContent>
                 </Select>
               ) : fm.type === 'lookup/select' || fm.type === 'lookup/radio' ? (
                 <Select value={filters[activeTab]?.[fm.key] ?? ''} onValueChange={v => updateFilter(activeTab, fm.key, v === 'all' ? '' : v)}>
-                  <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Alle" /></SelectTrigger>
+                  <SelectTrigger className="h-8 text-xs"><SelectValue placeholder={t('all_values')} /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Alle</SelectItem>
+                    <SelectItem value="all">{t('all_values')}</SelectItem>
                     {fm.options?.map((o: any) => (
-                      <SelectItem key={o.key} value={o.label}>{o.label}</SelectItem>
+                      <SelectItem key={o.key} value={o.key}>{o.label}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               ) : (
                 <Input
                   className="h-8 text-xs"
-                  placeholder="Filtern..."
+                  placeholder={`${t('filter')}...`}
                   value={filters[activeTab]?.[fm.key] ?? ''}
                   onChange={e => updateFilter(activeTab, fm.key, e.target.value)}
                 />
@@ -581,7 +598,7 @@ export default function AdminPage() {
                   </span>
                 </TableHead>
               ))}
-              <TableHead className="w-24 uppercase text-xs font-semibold text-secondary-foreground tracking-wider px-6">Aktionen</TableHead>
+              <TableHead className="w-24 uppercase text-xs font-semibold text-secondary-foreground tracking-wider px-6">{t('actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -601,16 +618,16 @@ export default function AdminPage() {
                         <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
                           val ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
                         }`}>
-                          {val ? 'Ja' : 'Nein'}
+                          {val ? t('yes') : t('no')}
                         </span>
                       </TableCell>
                     );
                   }
                   if (fm.type === 'lookup/select' || fm.type === 'lookup/radio') {
-                    return <TableCell key={fm.key}><span className="inline-flex items-center bg-secondary border border-[#bfdbfe] text-[#2563eb] rounded-[10px] px-2 py-1 text-sm font-medium">{val?.label ?? '—'}</span></TableCell>;
+                    return <TableCell key={fm.key}><span className="inline-flex items-center bg-secondary border border-[#bfdbfe] text-[#2563eb] rounded-[10px] px-2 py-1 text-sm font-medium">{lookupLabel(activeTab, fm.key, val?.key) ?? val?.label ?? '—'}</span></TableCell>;
                   }
                   if (fm.type.startsWith('multiplelookup')) {
-                    return <TableCell key={fm.key}>{Array.isArray(val) ? val.map((v: any) => v?.label ?? v).join(', ') : '—'}</TableCell>;
+                    return <TableCell key={fm.key}>{Array.isArray(val) ? val.map((v: any) => lookupLabel(activeTab, fm.key, v?.key) ?? v?.label ?? v).join(', ') : '—'}</TableCell>;
                   }
                   if (fm.type.startsWith('multipleapplookup')) {
                     return (
@@ -671,7 +688,7 @@ export default function AdminPage() {
             {filtered.length === 0 && (
               <TableRow>
                 <TableCell colSpan={fieldMeta.length + 2} className="text-center py-16 text-muted-foreground">
-                  Keine Ergebnisse gefunden.
+                  {t('no_results')}
                 </TableCell>
               </TableRow>
             )}
@@ -699,12 +716,12 @@ export default function AdminPage() {
           enablePhotoLocation={AI_PHOTO_LOCATION['Dozenten']}
         />
       )}
-      {(createEntity === 'kurse_&_workshops' || dialogState?.entity === 'kurse_&_workshops') && (
+      {(createEntity === 'kurse_workshops' || dialogState?.entity === 'kurse_workshops') && (
         <KurseWorkshopsDialog
-          open={createEntity === 'kurse_&_workshops' || dialogState?.entity === 'kurse_&_workshops'}
+          open={createEntity === 'kurse_workshops' || dialogState?.entity === 'kurse_workshops'}
           onClose={() => { setCreateEntity(null); setDialogState(null); }}
-          onSubmit={dialogState?.entity === 'kurse_&_workshops' ? handleUpdate : (fields: any) => handleCreate('kurse_&_workshops', fields)}
-          defaultValues={dialogState?.entity === 'kurse_&_workshops' ? dialogState.record?.fields : undefined}
+          onSubmit={dialogState?.entity === 'kurse_workshops' ? handleUpdate : (fields: any) => handleCreate('kurse_workshops', fields)}
+          defaultValues={dialogState?.entity === 'kurse_workshops' ? dialogState.record?.fields : undefined}
           dozentenList={(data as any).dozenten ?? []}
           raeumeList={(data as any).raeume ?? []}
           enablePhotoScan={AI_PHOTO_SCAN['KurseWorkshops']}
@@ -760,12 +777,12 @@ export default function AdminPage() {
           onEdit={(r: any) => { setViewState(null); setDialogState({ entity: 'dozenten', record: r }); }}
         />
       )}
-      {viewState?.entity === 'kurse_&_workshops' && (
+      {viewState?.entity === 'kurse_workshops' && (
         <KurseWorkshopsViewDialog
-          open={viewState?.entity === 'kurse_&_workshops'}
+          open={viewState?.entity === 'kurse_workshops'}
           onClose={() => setViewState(null)}
           record={viewState?.record}
-          onEdit={(r: any) => { setViewState(null); setDialogState({ entity: 'kurse_&_workshops', record: r }); }}
+          onEdit={(r: any) => { setViewState(null); setDialogState({ entity: 'kurse_workshops', record: r }); }}
           dozentenList={(data as any).dozenten ?? []}
           raeumeList={(data as any).raeume ?? []}
         />
@@ -812,8 +829,8 @@ export default function AdminPage() {
         open={!!deleteTargets}
         onClose={() => setDeleteTargets(null)}
         onConfirm={handleBulkDelete}
-        title="Ausgewählte löschen"
-        description={`Sollen ${deleteTargets?.ids.length ?? 0} Einträge wirklich gelöscht werden? Diese Aktion kann nicht rückgängig gemacht werden.`}
+        title={t('bulk_delete')}
+        description={t('confirm_bulk_delete', { n: deleteTargets?.ids.length ?? 0 })}
       />
     </PageShell>
   );

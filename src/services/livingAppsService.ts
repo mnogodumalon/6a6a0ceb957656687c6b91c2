@@ -75,8 +75,9 @@ export interface CallApiOptions {
   silent?: boolean;
 }
 
-/** What create/update resolves to. Same `record_id` the read helpers
- *  expose, so the whole family behaves alike — the raw REST answer only
+/** What the create and update helpers resolve to. Same `record_id`
+ *  the read helpers expose, so the whole family behaves alike — the
+ *  raw REST answer only
  *  carries `id`, and code that guessed (e.g. Object.keys(res)[0]) built
  *  `/records/id` and got a 400 on the next write. */
 export interface MutationResult {
@@ -330,13 +331,14 @@ export class LivingAppsService {
   static async getRaeume(): Promise<Raeume[]> {
     const data = await callApi('GET', `/apps/${APP_IDS.RAEUME}/records`);
     const records = Object.entries(data).map(([id, rec]: [string, any]) => ({
-      record_id: id, ...rec
+      record_id: id, ...rec,
+      createdat: rec.created_at ?? '', updatedat: rec.updated_at ?? null,
     })) as Raeume[];
     return enrichLookupFields(records, 'raeume');
   }
   static async getRaeumeEntry(id: string): Promise<Raeume | undefined> {
     const data = await callApi('GET', `/apps/${APP_IDS.RAEUME}/records/${id}`);
-    const record = { record_id: data.id, ...data } as Raeume;
+    const record = { record_id: data.id, ...data, createdat: data.created_at ?? '', updatedat: data.updated_at ?? null } as Raeume;
     return enrichLookupFields([record], 'raeume')[0];
   }
   static async createRaeumeEntry(fields: CreateRaeume): Promise<MutationResult> {
@@ -355,13 +357,14 @@ export class LivingAppsService {
   static async getDozenten(): Promise<Dozenten[]> {
     const data = await callApi('GET', `/apps/${APP_IDS.DOZENTEN}/records`);
     const records = Object.entries(data).map(([id, rec]: [string, any]) => ({
-      record_id: id, ...rec
+      record_id: id, ...rec,
+      createdat: rec.created_at ?? '', updatedat: rec.updated_at ?? null,
     })) as Dozenten[];
     return enrichLookupFields(records, 'dozenten');
   }
   static async getDozentenEntry(id: string): Promise<Dozenten | undefined> {
     const data = await callApi('GET', `/apps/${APP_IDS.DOZENTEN}/records/${id}`);
-    const record = { record_id: data.id, ...data } as Dozenten;
+    const record = { record_id: data.id, ...data, createdat: data.created_at ?? '', updatedat: data.updated_at ?? null } as Dozenten;
     return enrichLookupFields([record], 'dozenten')[0];
   }
   static async createDozentenEntry(fields: CreateDozenten): Promise<MutationResult> {
@@ -376,25 +379,26 @@ export class LivingAppsService {
     return callApi('DELETE', `/apps/${APP_IDS.DOZENTEN}/records/${id}`);
   }
 
-  // --- KURSE_&_WORKSHOPS ---
+  // --- KURSE_WORKSHOPS ---
   static async getKurseWorkshops(): Promise<KurseWorkshops[]> {
     const data = await callApi('GET', `/apps/${APP_IDS.KURSE_WORKSHOPS}/records`);
     const records = Object.entries(data).map(([id, rec]: [string, any]) => ({
-      record_id: id, ...rec
+      record_id: id, ...rec,
+      createdat: rec.created_at ?? '', updatedat: rec.updated_at ?? null,
     })) as KurseWorkshops[];
-    return enrichLookupFields(records, 'kurse_&_workshops');
+    return enrichLookupFields(records, 'kurse_workshops');
   }
   static async getKurseWorkshop(id: string): Promise<KurseWorkshops | undefined> {
     const data = await callApi('GET', `/apps/${APP_IDS.KURSE_WORKSHOPS}/records/${id}`);
-    const record = { record_id: data.id, ...data } as KurseWorkshops;
-    return enrichLookupFields([record], 'kurse_&_workshops')[0];
+    const record = { record_id: data.id, ...data, createdat: data.created_at ?? '', updatedat: data.updated_at ?? null } as KurseWorkshops;
+    return enrichLookupFields([record], 'kurse_workshops')[0];
   }
   static async createKurseWorkshop(fields: CreateKurseWorkshops): Promise<MutationResult> {
-    const data = await callApi('POST', `/apps/${APP_IDS.KURSE_WORKSHOPS}/records`, { fields: cleanFieldsForApi(fields as any, 'kurse_&_workshops') });
+    const data = await callApi('POST', `/apps/${APP_IDS.KURSE_WORKSHOPS}/records`, { fields: cleanFieldsForApi(fields as any, 'kurse_workshops') });
     return { ...data, record_id: data.id };
   }
   static async updateKurseWorkshop(id: string, fields: Partial<CreateKurseWorkshops>): Promise<MutationResult> {
-    const data = await callApi('PATCH', `/apps/${APP_IDS.KURSE_WORKSHOPS}/records/${id}`, { fields: cleanFieldsForApi(fields as any, 'kurse_&_workshops') });
+    const data = await callApi('PATCH', `/apps/${APP_IDS.KURSE_WORKSHOPS}/records/${id}`, { fields: cleanFieldsForApi(fields as any, 'kurse_workshops') });
     return { ...data, record_id: data.id };
   }
   static async deleteKurseWorkshop(id: string) {
@@ -405,13 +409,14 @@ export class LivingAppsService {
   static async getTeilnehmer(): Promise<Teilnehmer[]> {
     const data = await callApi('GET', `/apps/${APP_IDS.TEILNEHMER}/records`);
     const records = Object.entries(data).map(([id, rec]: [string, any]) => ({
-      record_id: id, ...rec
+      record_id: id, ...rec,
+      createdat: rec.created_at ?? '', updatedat: rec.updated_at ?? null,
     })) as Teilnehmer[];
     return enrichLookupFields(records, 'teilnehmer');
   }
   static async getTeilnehmerEntry(id: string): Promise<Teilnehmer | undefined> {
     const data = await callApi('GET', `/apps/${APP_IDS.TEILNEHMER}/records/${id}`);
-    const record = { record_id: data.id, ...data } as Teilnehmer;
+    const record = { record_id: data.id, ...data, createdat: data.created_at ?? '', updatedat: data.updated_at ?? null } as Teilnehmer;
     return enrichLookupFields([record], 'teilnehmer')[0];
   }
   static async createTeilnehmerEntry(fields: CreateTeilnehmer): Promise<MutationResult> {
@@ -430,13 +435,14 @@ export class LivingAppsService {
   static async getAnmeldungen(): Promise<Anmeldungen[]> {
     const data = await callApi('GET', `/apps/${APP_IDS.ANMELDUNGEN}/records`);
     const records = Object.entries(data).map(([id, rec]: [string, any]) => ({
-      record_id: id, ...rec
+      record_id: id, ...rec,
+      createdat: rec.created_at ?? '', updatedat: rec.updated_at ?? null,
     })) as Anmeldungen[];
     return enrichLookupFields(records, 'anmeldungen');
   }
   static async getAnmeldungenEntry(id: string): Promise<Anmeldungen | undefined> {
     const data = await callApi('GET', `/apps/${APP_IDS.ANMELDUNGEN}/records/${id}`);
-    const record = { record_id: data.id, ...data } as Anmeldungen;
+    const record = { record_id: data.id, ...data, createdat: data.created_at ?? '', updatedat: data.updated_at ?? null } as Anmeldungen;
     return enrichLookupFields([record], 'anmeldungen')[0];
   }
   static async createAnmeldungenEntry(fields: CreateAnmeldungen): Promise<MutationResult> {
@@ -455,13 +461,14 @@ export class LivingAppsService {
   static async getZahlungen(): Promise<Zahlungen[]> {
     const data = await callApi('GET', `/apps/${APP_IDS.ZAHLUNGEN}/records`);
     const records = Object.entries(data).map(([id, rec]: [string, any]) => ({
-      record_id: id, ...rec
+      record_id: id, ...rec,
+      createdat: rec.created_at ?? '', updatedat: rec.updated_at ?? null,
     })) as Zahlungen[];
     return enrichLookupFields(records, 'zahlungen');
   }
   static async getZahlungenEntry(id: string): Promise<Zahlungen | undefined> {
     const data = await callApi('GET', `/apps/${APP_IDS.ZAHLUNGEN}/records/${id}`);
-    const record = { record_id: data.id, ...data } as Zahlungen;
+    const record = { record_id: data.id, ...data, createdat: data.created_at ?? '', updatedat: data.updated_at ?? null } as Zahlungen;
     return enrichLookupFields([record], 'zahlungen')[0];
   }
   static async createZahlungenEntry(fields: CreateZahlungen): Promise<MutationResult> {

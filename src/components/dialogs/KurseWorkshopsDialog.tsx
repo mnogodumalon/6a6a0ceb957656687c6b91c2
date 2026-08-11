@@ -29,6 +29,7 @@ import type { ComputedContext } from '@/config/form-enhancements/types';
 import { applyFieldOrder, flattenFieldOrder, applyDefaults, evalComputed, numberInputProps, clampNumberValue, classifyComputed, extractApplookupRefs, mergeApplookupRefs, resolveApplookupRef } from '@/config/form-enhancements/types';
 import { formEnhancements, computedDeps, computedApplookupRefs } from '@/config/form-enhancements/KurseWorkshops';
 import { AttachmentsSection } from '@/components/AttachmentsSection';
+import { t, appLabel, fieldLabel, lookupLabel, localeTag, CURRENCY } from '@/i18n';
 import { Textarea } from '@/components/ui/textarea';
 import { Combobox } from '@/components/Combobox';
 import { DozentenDialog } from '@/components/dialogs/DozentenDialog';
@@ -66,9 +67,9 @@ interface KurseWorkshopsDialogProps {
 // its own options and bare record ids via the field's target app — consumers
 // never carry the LookupValue/record-URL shape in their head.
 const NORMALIZE_LOOKUPS: Record<string, readonly { key: string; label: string }[]> = {
-  kurstyp: LOOKUP_OPTIONS['kurse_&_workshops']?.['kurstyp'] ?? [],
-  niveau: LOOKUP_OPTIONS['kurse_&_workshops']?.['niveau'] ?? [],
-  status_kurs: LOOKUP_OPTIONS['kurse_&_workshops']?.['status_kurs'] ?? [],
+  kurstyp: LOOKUP_OPTIONS['kurse_workshops']?.['kurstyp'] ?? [],
+  niveau: LOOKUP_OPTIONS['kurse_workshops']?.['niveau'] ?? [],
+  status_kurs: LOOKUP_OPTIONS['kurse_workshops']?.['status_kurs'] ?? [],
 };
 const NORMALIZE_APPLOOKUPS: Record<string, string> = {
   dozent: APP_IDS.DOZENTEN,
@@ -251,11 +252,11 @@ export function KurseWorkshopsDialog({ open, onClose, onSubmit, defaultValues, r
           (merged as Record<string, unknown>)[key] = val;
         }
       }
-      const clean = cleanFieldsForApi(merged, 'kurse_&_workshops');
+      const clean = cleanFieldsForApi(merged, 'kurse_workshops');
       await onSubmit(clean as KurseWorkshops['fields']);
       onClose();
     } catch (err) {
-      setSubmitError(err instanceof Error && err.message ? err.message : 'Speichern fehlgeschlagen.');
+      setSubmitError(err instanceof Error && err.message ? err.message : t('submit_error'));
     } finally {
       setSaving(false);
     }
@@ -333,7 +334,7 @@ export function KurseWorkshopsDialog({ open, onClose, onSubmit, defaultValues, r
       setScanSuccess(true);
       setTimeout(() => setScanSuccess(false), 3000);
     } catch (err) {
-      console.error('Scan fehlgeschlagen:', err);
+      console.error(`${t('scan_error')}:`, err);
       alert(err instanceof Error ? err.message : String(err));
     } finally {
       setScanning(false);
@@ -368,27 +369,29 @@ export function KurseWorkshopsDialog({ open, onClose, onSubmit, defaultValues, r
     }
   }, []);
 
-  const DIALOG_INTENT = defaultValues ? 'Kurse & Workshops bearbeiten' : 'Kurse & Workshops hinzufügen';
+  const DIALOG_INTENT = defaultValues
+    ? t('edit_entity', { entity: appLabel('kurse_workshops') })
+    : t('new_entity', { entity: appLabel('kurse_workshops') });
 
   const fieldBlocks: Record<string, React.ReactNode> = {
     'titel': (
       <div key="titel" className="space-y-1.5">
-        <Label htmlFor="titel">Titel <span className="text-destructive" aria-hidden="true">*</span></Label>
+        <Label htmlFor="titel">{fieldLabel('kurse_workshops', 'titel')} <span className="text-destructive" aria-hidden="true">*</span></Label>
         <Input
           id="titel"
-          placeholder="z. B. Anfänger-Klavier"
+          placeholder=""
           value={fields.titel ?? ''}
           onChange={e => setFields(f => ({ ...f, titel: e.target.value }))}
           required
         />
         {showErrors && !fields.titel && (
-          <p className="text-xs text-destructive mt-1">Pflichtfeld</p>
+          <p className="text-xs text-destructive mt-1">{t('required_hint')}</p>
         )}
       </div>
     ),
     'kurstyp': (
       <div key="kurstyp" className="space-y-1.5">
-        <Label htmlFor="kurstyp">Typ <span className="text-destructive" aria-hidden="true">*</span></Label>
+        <Label htmlFor="kurstyp">{fieldLabel('kurse_workshops', 'kurstyp')} <span className="text-destructive" aria-hidden="true">*</span></Label>
         <div role="radiogroup" className="flex flex-wrap gap-1.5">
           <button
             type="button"
@@ -401,7 +404,7 @@ export function KurseWorkshopsDialog({ open, onClose, onSubmit, defaultValues, r
                 : 'bg-background text-foreground border-input hover:bg-accent'
             }`}
           >
-            Kurs
+            {lookupLabel('kurse_workshops', 'kurstyp', 'kurs') ?? 'Kurs'}
           </button>
           <button
             type="button"
@@ -414,20 +417,20 @@ export function KurseWorkshopsDialog({ open, onClose, onSubmit, defaultValues, r
                 : 'bg-background text-foreground border-input hover:bg-accent'
             }`}
           >
-            Workshop
+            {lookupLabel('kurse_workshops', 'kurstyp', 'workshop') ?? 'Workshop'}
           </button>
         </div>
         {showErrors && !fields.kurstyp && (
-          <p className="text-xs text-destructive mt-1">Pflichtfeld</p>
+          <p className="text-xs text-destructive mt-1">{t('required_hint')}</p>
         )}
       </div>
     ),
     'beschreibung': (
       <div key="beschreibung" className="space-y-1.5">
-        <Label htmlFor="beschreibung">Beschreibung</Label>
+        <Label htmlFor="beschreibung">{fieldLabel('kurse_workshops', 'beschreibung')}</Label>
         <Textarea
           id="beschreibung"
-          placeholder="Inhalte, Lernziele, Besonderheiten..."
+          placeholder=""
           value={fields.beschreibung ?? ''}
           onChange={e => setFields(f => ({ ...f, beschreibung: e.target.value }))}
           rows={3}
@@ -436,7 +439,7 @@ export function KurseWorkshopsDialog({ open, onClose, onSubmit, defaultValues, r
     ),
     'niveau': (
       <div key="niveau" className="space-y-1.5">
-        <Label htmlFor="niveau">Niveau</Label>
+        <Label htmlFor="niveau">{fieldLabel('kurse_workshops', 'niveau')}</Label>
         <div role="radiogroup" className="flex flex-wrap gap-1.5">
           <button
             type="button"
@@ -449,7 +452,7 @@ export function KurseWorkshopsDialog({ open, onClose, onSubmit, defaultValues, r
                 : 'bg-background text-foreground border-input hover:bg-accent'
             }`}
           >
-            Anfänger
+            {lookupLabel('kurse_workshops', 'niveau', 'anfaenger') ?? 'Anfänger'}
           </button>
           <button
             type="button"
@@ -462,7 +465,7 @@ export function KurseWorkshopsDialog({ open, onClose, onSubmit, defaultValues, r
                 : 'bg-background text-foreground border-input hover:bg-accent'
             }`}
           >
-            Fortgeschrittene
+            {lookupLabel('kurse_workshops', 'niveau', 'fortgeschrittene') ?? 'Fortgeschrittene'}
           </button>
           <button
             type="button"
@@ -475,7 +478,7 @@ export function KurseWorkshopsDialog({ open, onClose, onSubmit, defaultValues, r
                 : 'bg-background text-foreground border-input hover:bg-accent'
             }`}
           >
-            Experten
+            {lookupLabel('kurse_workshops', 'niveau', 'experten') ?? 'Experten'}
           </button>
           <button
             type="button"
@@ -488,74 +491,70 @@ export function KurseWorkshopsDialog({ open, onClose, onSubmit, defaultValues, r
                 : 'bg-background text-foreground border-input hover:bg-accent'
             }`}
           >
-            Alle Niveaus
+            {lookupLabel('kurse_workshops', 'niveau', 'alle_niveaus') ?? 'Alle Niveaus'}
           </button>
         </div>
       </div>
     ),
     'dozent': (
       <div key="dozent" className="space-y-1.5">
-        <Label htmlFor="dozent">Dozent <span className="text-destructive" aria-hidden="true">*</span></Label>
+        <Label htmlFor="dozent">{fieldLabel('kurse_workshops', 'dozent')} <span className="text-destructive" aria-hidden="true">*</span></Label>
         <Combobox
           id="dozent"
-          placeholder="Dozent aus Liste wählen"
+          placeholder=""
           items={dozentenListAll.map(r => ({
             id: r.record_id,
             label: String(r.fields.vorname ?? r.record_id),
           }))}
           value={extractRecordId(fields.dozent)}
           onChange={id => setFields(f => ({ ...f, dozent: id ? createRecordUrl(APP_IDS.DOZENTEN, id) : undefined }))}
-          searchPlaceholder="Suchen…"
-          emptyText="Kein Treffer"
           onCreateNew={(q) => openCreateDozenten("dozent", q)}
-          createLabel="Neu in Dozenten"
+          createLabel={t('create_in', { entity: appLabel('dozenten') })}
         />
         {showErrors && !fields.dozent && (
-          <p className="text-xs text-destructive mt-1">Pflichtfeld</p>
+          <p className="text-xs text-destructive mt-1">{t('required_hint')}</p>
         )}
       </div>
     ),
     'raum': (
       <div key="raum" className="space-y-1.5">
-        <Label htmlFor="raum">Raum</Label>
+        <Label htmlFor="raum">{fieldLabel('kurse_workshops', 'raum')}</Label>
         <Combobox
           id="raum"
-          placeholder="In welchem Raum?"
+          placeholder=""
           items={raeumeListAll.map(r => ({
             id: r.record_id,
             label: String(r.fields.raumname ?? r.record_id),
           }))}
           value={extractRecordId(fields.raum)}
           onChange={id => setFields(f => ({ ...f, raum: id ? createRecordUrl(APP_IDS.RAEUME, id) : undefined }))}
-          searchPlaceholder="Suchen…"
-          emptyText="Kein Treffer"
           onCreateNew={(q) => openCreateRaeume("raum", q)}
-          createLabel="Neu in Räume"
+          createLabel={t('create_in', { entity: appLabel('raeume') })}
         />
       </div>
     ),
     'startdatum': (
       <div key="startdatum" className="space-y-1.5">
-        <Label htmlFor="startdatum">Startdatum und -uhrzeit <span className="text-destructive" aria-hidden="true">*</span></Label>
+        <Label htmlFor="startdatum">{fieldLabel('kurse_workshops', 'startdatum')} <span className="text-destructive" aria-hidden="true">*</span></Label>
         <DatePicker
           id="startdatum"
-          placeholder="Wann startet der Kurs?"
+          placeholder=""
           mode="datetime"
           value={fields.startdatum ?? null}
           onChange={v => setFields(f => ({ ...f, startdatum: v ?? undefined }))}
           required
         />
         {showErrors && !fields.startdatum && (
-          <p className="text-xs text-destructive mt-1">Pflichtfeld</p>
+          <p className="text-xs text-destructive mt-1">{t('required_hint')}</p>
         )}
       </div>
     ),
     'enddatum': (
       <div key="enddatum" className="space-y-1.5">
-        <Label htmlFor="enddatum">Enddatum und -uhrzeit</Label>
+        <Label htmlFor="enddatum">{fieldLabel('kurse_workshops', 'enddatum')}</Label>
         <DatePicker
           id="enddatum"
-          placeholder="Wann endet der Kurs?"
+          placeholder=""
           mode="datetime"
           value={fields.enddatum ?? null}
           onChange={v => setFields(f => ({ ...f, enddatum: v ?? undefined }))}
@@ -564,10 +563,10 @@ export function KurseWorkshopsDialog({ open, onClose, onSubmit, defaultValues, r
     ),
     'wochentag_uhrzeit': (
       <div key="wochentag_uhrzeit" className="space-y-1.5">
-        <Label htmlFor="wochentag_uhrzeit">Wochentag & Uhrzeit (regelmäßig)</Label>
+        <Label htmlFor="wochentag_uhrzeit">{fieldLabel('kurse_workshops', 'wochentag_uhrzeit')}</Label>
         <Input
           id="wochentag_uhrzeit"
-          placeholder="z. B. Mo 18:00 – 19:00"
+          placeholder=""
           value={fields.wochentag_uhrzeit ?? ''}
           onChange={e => setFields(f => ({ ...f, wochentag_uhrzeit: e.target.value }))}
         />
@@ -575,13 +574,13 @@ export function KurseWorkshopsDialog({ open, onClose, onSubmit, defaultValues, r
     ),
     'max_teilnehmer': (
       <div key="max_teilnehmer" className="space-y-1.5">
-        <Label htmlFor="max_teilnehmer">Maximale Teilnehmerzahl</Label>
+        <Label htmlFor="max_teilnehmer">{fieldLabel('kurse_workshops', 'max_teilnehmer')}</Label>
         <Input
           id="max_teilnehmer"
           type="number"
           step="any"
           {...numberInputProps(formEnhancements, 'max_teilnehmer')}
-          placeholder="z. B. 12"
+          placeholder=""
           value={fields.max_teilnehmer !== undefined ? fields.max_teilnehmer : (computedValues['max_teilnehmer'] ?? '')}
           onChange={e => setFields(f => ({ ...f, max_teilnehmer: clampNumberValue(formEnhancements, 'max_teilnehmer', e.target.value) }))}
         />
@@ -589,13 +588,13 @@ export function KurseWorkshopsDialog({ open, onClose, onSubmit, defaultValues, r
     ),
     'preis': (
       <div key="preis" className="space-y-1.5">
-        <Label htmlFor="preis">Preis (€)</Label>
+        <Label htmlFor="preis">{fieldLabel('kurse_workshops', 'preis')}</Label>
         <Input
           id="preis"
           type="number"
           step="any"
           {...numberInputProps(formEnhancements, 'preis')}
-          placeholder="z. B. 120,00"
+          placeholder=""
           value={fields.preis !== undefined ? fields.preis : (computedValues['preis'] ?? '')}
           onChange={e => setFields(f => ({ ...f, preis: clampNumberValue(formEnhancements, 'preis', e.target.value) }))}
         />
@@ -603,7 +602,7 @@ export function KurseWorkshopsDialog({ open, onClose, onSubmit, defaultValues, r
     ),
     'status_kurs': (
       <div key="status_kurs" className="space-y-1.5">
-        <Label htmlFor="status_kurs">Status <span className="text-destructive" aria-hidden="true">*</span></Label>
+        <Label htmlFor="status_kurs">{fieldLabel('kurse_workshops', 'status_kurs')} <span className="text-destructive" aria-hidden="true">*</span></Label>
         <div role="radiogroup" className="flex flex-wrap gap-1.5">
           <button
             type="button"
@@ -616,7 +615,7 @@ export function KurseWorkshopsDialog({ open, onClose, onSubmit, defaultValues, r
                 : 'bg-background text-foreground border-input hover:bg-accent'
             }`}
           >
-            Aktiv
+            {lookupLabel('kurse_workshops', 'status_kurs', 'aktiv') ?? 'Aktiv'}
           </button>
           <button
             type="button"
@@ -629,7 +628,7 @@ export function KurseWorkshopsDialog({ open, onClose, onSubmit, defaultValues, r
                 : 'bg-background text-foreground border-input hover:bg-accent'
             }`}
           >
-            Inaktiv
+            {lookupLabel('kurse_workshops', 'status_kurs', 'inaktiv') ?? 'Inaktiv'}
           </button>
           <button
             type="button"
@@ -642,7 +641,7 @@ export function KurseWorkshopsDialog({ open, onClose, onSubmit, defaultValues, r
                 : 'bg-background text-foreground border-input hover:bg-accent'
             }`}
           >
-            Abgeschlossen
+            {lookupLabel('kurse_workshops', 'status_kurs', 'abgeschlossen') ?? 'Abgeschlossen'}
           </button>
           <button
             type="button"
@@ -655,11 +654,11 @@ export function KurseWorkshopsDialog({ open, onClose, onSubmit, defaultValues, r
                 : 'bg-background text-foreground border-input hover:bg-accent'
             }`}
           >
-            Geplant
+            {lookupLabel('kurse_workshops', 'status_kurs', 'geplant') ?? 'Geplant'}
           </button>
         </div>
         {showErrors && !fields.status_kurs && (
-          <p className="text-xs text-destructive mt-1">Pflichtfeld</p>
+          <p className="text-xs text-destructive mt-1">{t('required_hint')}</p>
         )}
       </div>
     ),
@@ -732,9 +731,9 @@ export function KurseWorkshopsDialog({ open, onClose, onSubmit, defaultValues, r
     // Backend-Feld mit €-Label ODER virtueller Computed-Key, dessen Name nach Geld aussieht.
     const looksLikeCurrency = CURRENCY_KEYS.has(k) || /(?:kosten|preis|betrag|gesamt|netto|brutto|summe|mwst|rabatt|anzahlung|umsatz|saldo)/i.test(k);
     if (looksLikeCurrency) {
-      return n.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      return n.toLocaleString(localeTag(), { style: 'currency', currency: CURRENCY, minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
-    return n.toLocaleString('de-DE', { maximumFractionDigits: 2 });
+    return n.toLocaleString(localeTag(), { maximumFractionDigits: 2 });
   }
 
   return (
@@ -756,14 +755,14 @@ export function KurseWorkshopsDialog({ open, onClose, onSubmit, defaultValues, r
               }`}
             >
               <IconSparkles className={`h-3.5 w-3.5 ${aiOpen ? '' : 'text-primary'}`} />
-              <span className="hidden sm:inline">KI-Ausfüllen</span>
+              <span className="hidden sm:inline">{t('smart_fill')}</span>
               <IconChevronDown className={`h-3 w-3 transition-transform ${aiOpen ? 'rotate-180' : ''}`} />
             </button>
           )}
         </DialogHeader>
         {enablePhotoScan && aiOpen && (
           <div id="ai-fill-panel" className="border-b bg-muted/20 px-6 py-4 space-y-3">
-            <p className="text-xs text-muted-foreground">Versteht Fotos, Dokumente und Text und füllt alles für dich aus</p>
+            <p className="text-xs text-muted-foreground">{t('scan_header_sub')}</p>
             <div className="flex items-start gap-2 pl-0.5">
               <Checkbox
                 id="ai-use-personal-info"
@@ -773,21 +772,21 @@ export function KurseWorkshopsDialog({ open, onClose, onSubmit, defaultValues, r
               />
               <span className="text-xs text-muted-foreground leading-snug">
                 <Label htmlFor="ai-use-personal-info" className="text-xs font-normal text-muted-foreground cursor-pointer inline">
-                  KI-Assistent darf zusätzlich Informationen zu meiner Person verwenden
+                  {t('useinfo_label')}
                 </Label>
                 {' '}
                 <button type="button" onClick={handleShowProfileInfo} className="text-xs text-primary hover:underline whitespace-nowrap">
-                  {profileLoading ? 'Lade...' : '(mehr Infos)'}
+                  {profileLoading ? t('useinfo_loading') : `(${t('useinfo_more')})`}
                 </button>
               </span>
             </div>
             {showProfileInfo && (
               <div className="rounded-md border bg-muted/50 p-2 text-xs max-h-40 overflow-y-auto">
-                <p className="font-medium mb-1">Folgende Infos über dich können von der KI genutzt werden:</p>
+                <p className="font-medium mb-1">{t('profile_preamble')}</p>
                 {profileData ? Object.values(profileData).map((v, i) => (
                   <span key={i}>{i > 0 && ", "}{typeof v === "object" ? JSON.stringify(v) : String(v)}</span>
                 )) : (
-                  <span className="text-muted-foreground">Profil konnte nicht geladen werden</span>
+                  <span className="text-muted-foreground">{t('useinfo_error')}</span>
                 )}
               </div>
             )}
@@ -818,8 +817,8 @@ export function KurseWorkshopsDialog({ open, onClose, onSubmit, defaultValues, r
                     <IconLoader2 className="h-7 w-7 text-primary animate-spin" />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-medium">KI analysiert...</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">Felder werden automatisch ausgefüllt</p>
+                    <p className="text-sm font-medium">{t('scan_analyzing')}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{t('scan_analyzing_sub')}</p>
                   </div>
                 </div>
               ) : scanSuccess ? (
@@ -828,8 +827,8 @@ export function KurseWorkshopsDialog({ open, onClose, onSubmit, defaultValues, r
                     <IconCircleCheck className="h-7 w-7 text-green-600 dark:text-green-400" />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-medium text-green-700 dark:text-green-400">Felder ausgefüllt!</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">Prüfe die Werte und passe sie ggf. an</p>
+                    <p className="text-sm font-medium text-green-700 dark:text-green-400">{t('scan_success')}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{t('scan_success_sub')}</p>
                   </div>
                 </div>
               ) : (
@@ -838,7 +837,7 @@ export function KurseWorkshopsDialog({ open, onClose, onSubmit, defaultValues, r
                     <IconPhotoPlus className="h-7 w-7 text-primary/70" />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-medium">Foto oder Dokument hierher ziehen oder auswählen</p>
+                    <p className="text-sm font-medium">{t('scan_upload')}</p>
                   </div>
                 </div>
               )}
@@ -862,11 +861,11 @@ export function KurseWorkshopsDialog({ open, onClose, onSubmit, defaultValues, r
             <div className="grid grid-cols-3 gap-2">
               <Button type="button" variant="outline" size="sm" className="h-10 text-xs" disabled={scanning}
                 onClick={e => { e.stopPropagation(); cameraInputRef.current?.click(); }}>
-                <IconCamera className="h-3.5 w-3.5 mr-1" />Kamera
+                <IconCamera className="h-3.5 w-3.5 mr-1" />{t('scan_camera_btn')}
               </Button>
               <Button type="button" variant="outline" size="sm" className="h-10 text-xs" disabled={scanning}
                 onClick={e => { e.stopPropagation(); fileInputRef.current?.click(); }}>
-                <IconUpload className="h-3.5 w-3.5 mr-1" />Foto wählen
+                <IconUpload className="h-3.5 w-3.5 mr-1" />{t('scan_file_btn')}
               </Button>
               <Button type="button" variant="outline" size="sm" className="h-10 text-xs" disabled={scanning}
                 onClick={e => {
@@ -877,13 +876,13 @@ export function KurseWorkshopsDialog({ open, onClose, onSubmit, defaultValues, r
                     setTimeout(() => { if (fileInputRef.current) fileInputRef.current.accept = 'image/*,application/pdf'; }, 100);
                   }
                 }}>
-                <IconFileText className="h-3.5 w-3.5 mr-1" />Dokument
+                <IconFileText className="h-3.5 w-3.5 mr-1" />{t('scan_doc_btn')}
               </Button>
             </div>
 
             <div className="relative">
               <Textarea
-                placeholder="Text eingeben oder einfügen, z.B. Notizen, E-Mails, Beschreibungen..."
+                placeholder={t('scan_text_placeholder')}
                 value={aiText}
                 onChange={e => {
                   setAiText(e.target.value);
@@ -911,7 +910,7 @@ export function KurseWorkshopsDialog({ open, onClose, onSubmit, defaultValues, r
                     if (text) setAiText(prev => prev ? prev + '\n' + text : text);
                   } catch {}
                 }}
-                title="Paste"
+                title={t('paste')}
               >
                 <IconClipboard className="h-4 w-4" />
               </button>
@@ -925,7 +924,7 @@ export function KurseWorkshopsDialog({ open, onClose, onSubmit, defaultValues, r
                 disabled={scanning}
                 onClick={() => handleAiExtract()}
               >
-                <IconSparkles className="h-3.5 w-3.5 mr-1.5" />Analysieren
+                <IconSparkles className="h-3.5 w-3.5 mr-1.5" />{t('scan_text_analyze')}
               </Button>
             )}
           </div>
@@ -1020,7 +1019,7 @@ export function KurseWorkshopsDialog({ open, onClose, onSubmit, defaultValues, r
             {showErrors && missingRequired.length > 0 && (
               <p className="text-xs text-destructive flex items-center gap-1.5" role="alert">
                 <IconAlertCircle className="h-3.5 w-3.5 shrink-0" />
-                Bitte fülle die markierten Pflichtfelder aus.
+                {t('missing_required')}
               </p>
             )}
             {recordId && (
@@ -1036,13 +1035,13 @@ export function KurseWorkshopsDialog({ open, onClose, onSubmit, defaultValues, r
             </div>
           )}
           <DialogFooter className="sticky bottom-0 border-t bg-background/95 backdrop-blur px-6 py-3 gap-2 max-sm:flex-row">
-            <Button type="button" variant="outline" onClick={onClose} className="max-sm:h-12 max-sm:flex-1 max-sm:text-base">Abbrechen</Button>
+            <Button type="button" variant="outline" onClick={onClose} className="max-sm:h-12 max-sm:flex-1 max-sm:text-base">{t('cancel')}</Button>
             <Button
               type="submit"
               className="max-sm:h-12 max-sm:flex-1 max-sm:text-base"
               disabled={saving || !isDirty || (showErrors && missingRequired.length > 0)}
             >
-              {saving ? 'Speichern...' : defaultValues ? 'Speichern' : 'Erstellen'}
+              {saving ? t('saving') : defaultValues ? t('save') : t('create')}
             </Button>
           </DialogFooter>
         </form>

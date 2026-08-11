@@ -14,6 +14,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { AI_PHOTO_SCAN, AI_PHOTO_LOCATION } from '@/config/ai-features';
 import { formEnhancements } from '@/config/form-enhancements/Anmeldungen';
 import { evalComputed } from '@/config/form-enhancements/types';
+import { t, appLabel, fieldLabel, localeTag, CURRENCY } from '@/i18n';
 
 export default function AnmeldungenDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -76,11 +77,11 @@ export default function AnmeldungenDetailPage() {
   if (!record) {
     return (
       <RecordViewEmpty
-        title="Eintrag nicht gefunden"
+        title={t('not_found')}
         action={
           <Button variant="ghost" onClick={() => navigate('/anmeldungen')}>
             <IconArrowLeft className="h-4 w-4 mr-1.5" />
-            Zurück
+            {t('back')}
           </Button>
         }
       />
@@ -91,10 +92,10 @@ export default function AnmeldungenDetailPage() {
     <RecordView
       onBack={() => navigate('/anmeldungen')}
       onEdit={() => setEditing(true)}
-      backLabel="Zurück"
-      editLabel="Bearbeiten"
+      backLabel={t('back')}
+      editLabel={t('edit_button')}
     >
-      <RecordHeader title={'Anmeldungen'} />
+      <RecordHeader title={appLabel('anmeldungen')} />
 
       {(() => {
         const lookupLists: Record<string, unknown> = {
@@ -103,8 +104,8 @@ export default function AnmeldungenDetailPage() {
         };
         const fmtComputed = (k: string, n: number) =>
           /(?:kosten|preis|betrag|gesamt|netto|brutto|summe|mwst|rabatt|anzahlung|umsatz|saldo)/i.test(k)
-            ? n.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2, maximumFractionDigits: 2 })
-            : n.toLocaleString('de-DE', { maximumFractionDigits: 2 });
+            ? n.toLocaleString(localeTag(), { style: 'currency', currency: CURRENCY, minimumFractionDigits: 2, maximumFractionDigits: 2 })
+            : n.toLocaleString(localeTag(), { maximumFractionDigits: 2 });
         const computedFacts = Object.entries(formEnhancements.computed)
           .map(([key, formula]) => {
             const v = evalComputed(formula, record!.fields as Record<string, unknown>, { lookupLists });
@@ -116,12 +117,12 @@ export default function AnmeldungenDetailPage() {
         return computedFacts.length > 0 ? <RecordKeyFacts items={computedFacts} /> : null;
       })()}
 
-      <RecordSection title="Details" cols={2}>
-        <RecordField label="Teilnehmer" value={getTeilnehmerDisplayName(record.fields.teilnehmer)} format="text" />
-        <RecordField label="Kurs / Workshop" value={getKurseWorkshopsDisplayName(record.fields.kurs)} format="text" />
-        <RecordField label="Anmeldedatum" value={record.fields.anmeldedatum} format="date" />
-        <RecordField label="Anmeldestatus" value={record.fields.status_anmeldung} format="pill" />
-        <RecordField label="Bemerkungen" value={record.fields.bemerkungen_anmeldung} format="longtext" className="md:col-span-2" />
+      <RecordSection title={t('details')} cols={2}>
+        <RecordField label={fieldLabel('anmeldungen', 'teilnehmer')} value={getTeilnehmerDisplayName(record.fields.teilnehmer)} format="text" />
+        <RecordField label={fieldLabel('anmeldungen', 'kurs')} value={getKurseWorkshopsDisplayName(record.fields.kurs)} format="text" />
+        <RecordField label={fieldLabel('anmeldungen', 'anmeldedatum')} value={record.fields.anmeldedatum} format="date" />
+        <RecordField label={fieldLabel('anmeldungen', 'status_anmeldung')} value={record.fields.status_anmeldung} format="pill" />
+        <RecordField label={fieldLabel('anmeldungen', 'bemerkungen_anmeldung')} value={record.fields.bemerkungen_anmeldung} format="longtext" className="md:col-span-2" />
       </RecordSection>
 
       <RecordAttachments appId={APP_IDS.ANMELDUNGEN} recordId={record.record_id} />
@@ -129,7 +130,7 @@ export default function AnmeldungenDetailPage() {
       <div className="flex justify-end pt-2">
         <Button variant="ghost" onClick={() => setDeleteOpen(true)} className="text-destructive hover:text-destructive">
           <IconTrash className="h-4 w-4 mr-1.5" />
-          Löschen
+          {t('delete')}
         </Button>
       </div>
 
@@ -149,8 +150,8 @@ export default function AnmeldungenDetailPage() {
         open={deleteOpen}
         onClose={() => setDeleteOpen(false)}
         onConfirm={handleDelete}
-        title="Anmeldungen löschen"
-        description="Soll dieser Eintrag wirklich gelöscht werden? Diese Aktion kann nicht rückgängig gemacht werden."
+        title={t('delete_entity', { entity: appLabel('anmeldungen') })}
+        description={t('confirm_delete_desc')}
       />
     </RecordView>
   );

@@ -4,6 +4,7 @@ import { extractRecordId } from '@/services/livingAppsService';
 import {
   RecordSection, RecordField, RecordRelation, RecordAttachments,
 } from '@/components/widgets/RecordView';
+import { t, appLabel, fieldLabel } from '@/i18n';
 
 export interface ZahlungenDetailsProps {
   /** Der Record — enriched oder roh; alle Felder werden hier gerendert. */
@@ -22,19 +23,19 @@ export function ZahlungenDetails({
   const anmeldungTarget = anmeldungenList.find(r => r.record_id === extractRecordId(record.fields.anmeldung));
   return (
     <>
-      <RecordSection title="Details" cols={2}>
-        <RecordField label="Rechnungsnummer" value={record.fields.rechnungsnummer} format="text" />
-        <RecordField label="Betrag (€)" value={record.fields.betrag} format="text" />
-        <RecordField label="Zahlungsdatum" value={record.fields.zahlungsdatum} format="date" />
-        <RecordField label="Zahlungsart" value={record.fields.zahlungsart} format="pill" />
-        <RecordField label="Zahlungsstatus" value={record.fields.zahlungsstatus} format="pill" />
-        <RecordField label="Notizen" value={record.fields.notizen_zahlung} format="longtext" className="md:col-span-2" />
+      <RecordSection title={t('details')} cols={2}>
+        <RecordField label={fieldLabel('zahlungen', 'rechnungsnummer')} value={record.fields.rechnungsnummer} format="text" />
+        <RecordField label={fieldLabel('zahlungen', 'betrag')} value={record.fields.betrag} format="text" />
+        <RecordField label={fieldLabel('zahlungen', 'zahlungsdatum')} value={record.fields.zahlungsdatum} format="date" />
+        <RecordField label={fieldLabel('zahlungen', 'zahlungsart')} value={record.fields.zahlungsart} format="pill" />
+        <RecordField label={fieldLabel('zahlungen', 'zahlungsstatus')} value={record.fields.zahlungsstatus} format="pill" />
+        <RecordField label={fieldLabel('zahlungen', 'notizen_zahlung')} value={record.fields.notizen_zahlung} format="longtext" className="md:col-span-2" />
       </RecordSection>
 
       {/* N:1 — verknüpfte Records: IMMER klickbar, nie eine Text-Sackgasse. */}
-      <RecordSection title="Verknüpft" cols={1}>
+      <RecordSection title={t('relations')} cols={1}>
         <RecordRelation
-          label="Anmeldung"
+          label={fieldLabel('zahlungen', 'anmeldung')}
           name={anmeldungTarget?.fields.bemerkungen_anmeldung ?? '—'}
           meta={undefined}
           onClick={anmeldungTarget && onOpenAnmeldungen ? () => onOpenAnmeldungen!(anmeldungTarget!) : undefined}

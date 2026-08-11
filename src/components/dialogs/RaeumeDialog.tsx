@@ -27,6 +27,7 @@ import type { ComputedContext } from '@/config/form-enhancements/types';
 import { applyFieldOrder, flattenFieldOrder, applyDefaults, evalComputed, numberInputProps, clampNumberValue, classifyComputed, extractApplookupRefs, mergeApplookupRefs, resolveApplookupRef } from '@/config/form-enhancements/types';
 import { formEnhancements, computedDeps, computedApplookupRefs } from '@/config/form-enhancements/Raeume';
 import { AttachmentsSection } from '@/components/AttachmentsSection';
+import { t, appLabel, fieldLabel, lookupLabel, localeTag, CURRENCY } from '@/i18n';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { IconAlertCircle, IconCamera, IconChevronDown, IconCircleCheck, IconClipboard, IconFileText, IconLoader2, IconPhotoPlus, IconSparkles, IconUpload, IconX } from '@tabler/icons-react';
@@ -198,7 +199,7 @@ export function RaeumeDialog({ open, onClose, onSubmit, defaultValues, recordId,
       await onSubmit(clean as Raeume['fields']);
       onClose();
     } catch (err) {
-      setSubmitError(err instanceof Error && err.message ? err.message : 'Speichern fehlgeschlagen.');
+      setSubmitError(err instanceof Error && err.message ? err.message : t('submit_error'));
     } finally {
       setSaving(false);
     }
@@ -262,7 +263,7 @@ export function RaeumeDialog({ open, onClose, onSubmit, defaultValues, recordId,
       setScanSuccess(true);
       setTimeout(() => setScanSuccess(false), 3000);
     } catch (err) {
-      console.error('Scan fehlgeschlagen:', err);
+      console.error(`${t('scan_error')}:`, err);
       alert(err instanceof Error ? err.message : String(err));
     } finally {
       setScanning(false);
@@ -297,30 +298,32 @@ export function RaeumeDialog({ open, onClose, onSubmit, defaultValues, recordId,
     }
   }, []);
 
-  const DIALOG_INTENT = defaultValues ? 'Räume bearbeiten' : 'Räume hinzufügen';
+  const DIALOG_INTENT = defaultValues
+    ? t('edit_entity', { entity: appLabel('raeume') })
+    : t('new_entity', { entity: appLabel('raeume') });
 
   const fieldBlocks: Record<string, React.ReactNode> = {
     'raumname': (
       <div key="raumname" className="space-y-1.5">
-        <Label htmlFor="raumname">Raumname <span className="text-destructive" aria-hidden="true">*</span></Label>
+        <Label htmlFor="raumname">{fieldLabel('raeume', 'raumname')} <span className="text-destructive" aria-hidden="true">*</span></Label>
         <Input
           id="raumname"
-          placeholder="z. B. Klavier-Studio 1"
+          placeholder=""
           value={fields.raumname ?? ''}
           onChange={e => setFields(f => ({ ...f, raumname: e.target.value }))}
           required
         />
         {showErrors && !fields.raumname && (
-          <p className="text-xs text-destructive mt-1">Pflichtfeld</p>
+          <p className="text-xs text-destructive mt-1">{t('required_hint')}</p>
         )}
       </div>
     ),
     'raumnummer': (
       <div key="raumnummer" className="space-y-1.5">
-        <Label htmlFor="raumnummer">Raumnummer</Label>
+        <Label htmlFor="raumnummer">{fieldLabel('raeume', 'raumnummer')}</Label>
         <Input
           id="raumnummer"
-          placeholder="z. B. R-201"
+          placeholder=""
           value={fields.raumnummer ?? ''}
           onChange={e => setFields(f => ({ ...f, raumnummer: e.target.value }))}
         />
@@ -328,10 +331,10 @@ export function RaeumeDialog({ open, onClose, onSubmit, defaultValues, recordId,
     ),
     'etage': (
       <div key="etage" className="space-y-1.5">
-        <Label htmlFor="etage">Etage / Standort</Label>
+        <Label htmlFor="etage">{fieldLabel('raeume', 'etage')}</Label>
         <Input
           id="etage"
-          placeholder="z. B. 2. Obergeschoß"
+          placeholder=""
           value={fields.etage ?? ''}
           onChange={e => setFields(f => ({ ...f, etage: e.target.value }))}
         />
@@ -339,13 +342,13 @@ export function RaeumeDialog({ open, onClose, onSubmit, defaultValues, recordId,
     ),
     'kapazitaet': (
       <div key="kapazitaet" className="space-y-1.5">
-        <Label htmlFor="kapazitaet">Kapazität (Personen)</Label>
+        <Label htmlFor="kapazitaet">{fieldLabel('raeume', 'kapazitaet')}</Label>
         <Input
           id="kapazitaet"
           type="number"
           step="any"
           {...numberInputProps(formEnhancements, 'kapazitaet')}
-          placeholder="z. B. 12"
+          placeholder=""
           value={fields.kapazitaet !== undefined ? fields.kapazitaet : (computedValues['kapazitaet'] ?? '')}
           onChange={e => setFields(f => ({ ...f, kapazitaet: clampNumberValue(formEnhancements, 'kapazitaet', e.target.value) }))}
         />
@@ -353,7 +356,7 @@ export function RaeumeDialog({ open, onClose, onSubmit, defaultValues, recordId,
     ),
     'ausstattung': (
       <div key="ausstattung" className="space-y-1.5">
-        <Label htmlFor="ausstattung">Ausstattung</Label>
+        <Label htmlFor="ausstattung">{fieldLabel('raeume', 'ausstattung')}</Label>
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Checkbox
@@ -367,7 +370,7 @@ export function RaeumeDialog({ open, onClose, onSubmit, defaultValues, recordId,
                 });
               }}
             />
-            <Label htmlFor="ausstattung_klavier" className="font-normal">Klavier</Label>
+            <Label htmlFor="ausstattung_klavier" className="font-normal">{lookupLabel('raeume', 'ausstattung', 'klavier') ?? 'Klavier'}</Label>
           </div>
           <div className="flex items-center gap-2">
             <Checkbox
@@ -381,7 +384,7 @@ export function RaeumeDialog({ open, onClose, onSubmit, defaultValues, recordId,
                 });
               }}
             />
-            <Label htmlFor="ausstattung_fluegel" className="font-normal">Flügel</Label>
+            <Label htmlFor="ausstattung_fluegel" className="font-normal">{lookupLabel('raeume', 'ausstattung', 'fluegel') ?? 'Flügel'}</Label>
           </div>
           <div className="flex items-center gap-2">
             <Checkbox
@@ -395,7 +398,7 @@ export function RaeumeDialog({ open, onClose, onSubmit, defaultValues, recordId,
                 });
               }}
             />
-            <Label htmlFor="ausstattung_schlagzeug" className="font-normal">Schlagzeug</Label>
+            <Label htmlFor="ausstattung_schlagzeug" className="font-normal">{lookupLabel('raeume', 'ausstattung', 'schlagzeug') ?? 'Schlagzeug'}</Label>
           </div>
           <div className="flex items-center gap-2">
             <Checkbox
@@ -409,7 +412,7 @@ export function RaeumeDialog({ open, onClose, onSubmit, defaultValues, recordId,
                 });
               }}
             />
-            <Label htmlFor="ausstattung_gitarrenverstaerker" className="font-normal">Gitarrenverstärker</Label>
+            <Label htmlFor="ausstattung_gitarrenverstaerker" className="font-normal">{lookupLabel('raeume', 'ausstattung', 'gitarrenverstaerker') ?? 'Gitarrenverstärker'}</Label>
           </div>
           <div className="flex items-center gap-2">
             <Checkbox
@@ -423,7 +426,7 @@ export function RaeumeDialog({ open, onClose, onSubmit, defaultValues, recordId,
                 });
               }}
             />
-            <Label htmlFor="ausstattung_pa_anlage" className="font-normal">PA-Anlage</Label>
+            <Label htmlFor="ausstattung_pa_anlage" className="font-normal">{lookupLabel('raeume', 'ausstattung', 'pa_anlage') ?? 'PA-Anlage'}</Label>
           </div>
           <div className="flex items-center gap-2">
             <Checkbox
@@ -437,7 +440,7 @@ export function RaeumeDialog({ open, onClose, onSubmit, defaultValues, recordId,
                 });
               }}
             />
-            <Label htmlFor="ausstattung_whiteboard" className="font-normal">Whiteboard</Label>
+            <Label htmlFor="ausstattung_whiteboard" className="font-normal">{lookupLabel('raeume', 'ausstattung', 'whiteboard') ?? 'Whiteboard'}</Label>
           </div>
           <div className="flex items-center gap-2">
             <Checkbox
@@ -451,7 +454,7 @@ export function RaeumeDialog({ open, onClose, onSubmit, defaultValues, recordId,
                 });
               }}
             />
-            <Label htmlFor="ausstattung_spiegel" className="font-normal">Spiegel</Label>
+            <Label htmlFor="ausstattung_spiegel" className="font-normal">{lookupLabel('raeume', 'ausstattung', 'spiegel') ?? 'Spiegel'}</Label>
           </div>
           <div className="flex items-center gap-2">
             <Checkbox
@@ -465,17 +468,17 @@ export function RaeumeDialog({ open, onClose, onSubmit, defaultValues, recordId,
                 });
               }}
             />
-            <Label htmlFor="ausstattung_tonstudio" className="font-normal">Tonstudio-Ausstattung</Label>
+            <Label htmlFor="ausstattung_tonstudio" className="font-normal">{lookupLabel('raeume', 'ausstattung', 'tonstudio') ?? 'Tonstudio-Ausstattung'}</Label>
           </div>
         </div>
       </div>
     ),
     'bemerkungen_raum': (
       <div key="bemerkungen_raum" className="space-y-1.5">
-        <Label htmlFor="bemerkungen_raum">Bemerkungen</Label>
+        <Label htmlFor="bemerkungen_raum">{fieldLabel('raeume', 'bemerkungen_raum')}</Label>
         <Textarea
           id="bemerkungen_raum"
-          placeholder="Besonderheiten, Geräte-Status, Zugang..."
+          placeholder=""
           value={fields.bemerkungen_raum ?? ''}
           onChange={e => setFields(f => ({ ...f, bemerkungen_raum: e.target.value }))}
           rows={3}
@@ -484,14 +487,14 @@ export function RaeumeDialog({ open, onClose, onSubmit, defaultValues, recordId,
     ),
     'verfuegbar': (
       <div key="verfuegbar" className="space-y-1.5">
-        <Label htmlFor="verfuegbar">Raum verfügbar</Label>
+        <Label htmlFor="verfuegbar">{fieldLabel('raeume', 'verfuegbar')}</Label>
         <div className="flex items-center gap-2 pt-1">
           <Checkbox
             id="verfuegbar"
             checked={!!fields.verfuegbar}
             onCheckedChange={(v) => setFields(f => ({ ...f, verfuegbar: !!v }))}
           />
-          <Label htmlFor="verfuegbar" className="font-normal">Raum verfügbar</Label>
+          <Label htmlFor="verfuegbar" className="font-normal">{fieldLabel('raeume', 'verfuegbar')}</Label>
         </div>
       </div>
     ),
@@ -564,9 +567,9 @@ export function RaeumeDialog({ open, onClose, onSubmit, defaultValues, recordId,
     // Backend-Feld mit €-Label ODER virtueller Computed-Key, dessen Name nach Geld aussieht.
     const looksLikeCurrency = CURRENCY_KEYS.has(k) || /(?:kosten|preis|betrag|gesamt|netto|brutto|summe|mwst|rabatt|anzahlung|umsatz|saldo)/i.test(k);
     if (looksLikeCurrency) {
-      return n.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      return n.toLocaleString(localeTag(), { style: 'currency', currency: CURRENCY, minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
-    return n.toLocaleString('de-DE', { maximumFractionDigits: 2 });
+    return n.toLocaleString(localeTag(), { maximumFractionDigits: 2 });
   }
 
   return (
@@ -588,14 +591,14 @@ export function RaeumeDialog({ open, onClose, onSubmit, defaultValues, recordId,
               }`}
             >
               <IconSparkles className={`h-3.5 w-3.5 ${aiOpen ? '' : 'text-primary'}`} />
-              <span className="hidden sm:inline">KI-Ausfüllen</span>
+              <span className="hidden sm:inline">{t('smart_fill')}</span>
               <IconChevronDown className={`h-3 w-3 transition-transform ${aiOpen ? 'rotate-180' : ''}`} />
             </button>
           )}
         </DialogHeader>
         {enablePhotoScan && aiOpen && (
           <div id="ai-fill-panel" className="border-b bg-muted/20 px-6 py-4 space-y-3">
-            <p className="text-xs text-muted-foreground">Versteht Fotos, Dokumente und Text und füllt alles für dich aus</p>
+            <p className="text-xs text-muted-foreground">{t('scan_header_sub')}</p>
             <div className="flex items-start gap-2 pl-0.5">
               <Checkbox
                 id="ai-use-personal-info"
@@ -605,21 +608,21 @@ export function RaeumeDialog({ open, onClose, onSubmit, defaultValues, recordId,
               />
               <span className="text-xs text-muted-foreground leading-snug">
                 <Label htmlFor="ai-use-personal-info" className="text-xs font-normal text-muted-foreground cursor-pointer inline">
-                  KI-Assistent darf zusätzlich Informationen zu meiner Person verwenden
+                  {t('useinfo_label')}
                 </Label>
                 {' '}
                 <button type="button" onClick={handleShowProfileInfo} className="text-xs text-primary hover:underline whitespace-nowrap">
-                  {profileLoading ? 'Lade...' : '(mehr Infos)'}
+                  {profileLoading ? t('useinfo_loading') : `(${t('useinfo_more')})`}
                 </button>
               </span>
             </div>
             {showProfileInfo && (
               <div className="rounded-md border bg-muted/50 p-2 text-xs max-h-40 overflow-y-auto">
-                <p className="font-medium mb-1">Folgende Infos über dich können von der KI genutzt werden:</p>
+                <p className="font-medium mb-1">{t('profile_preamble')}</p>
                 {profileData ? Object.values(profileData).map((v, i) => (
                   <span key={i}>{i > 0 && ", "}{typeof v === "object" ? JSON.stringify(v) : String(v)}</span>
                 )) : (
-                  <span className="text-muted-foreground">Profil konnte nicht geladen werden</span>
+                  <span className="text-muted-foreground">{t('useinfo_error')}</span>
                 )}
               </div>
             )}
@@ -650,8 +653,8 @@ export function RaeumeDialog({ open, onClose, onSubmit, defaultValues, recordId,
                     <IconLoader2 className="h-7 w-7 text-primary animate-spin" />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-medium">KI analysiert...</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">Felder werden automatisch ausgefüllt</p>
+                    <p className="text-sm font-medium">{t('scan_analyzing')}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{t('scan_analyzing_sub')}</p>
                   </div>
                 </div>
               ) : scanSuccess ? (
@@ -660,8 +663,8 @@ export function RaeumeDialog({ open, onClose, onSubmit, defaultValues, recordId,
                     <IconCircleCheck className="h-7 w-7 text-green-600 dark:text-green-400" />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-medium text-green-700 dark:text-green-400">Felder ausgefüllt!</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">Prüfe die Werte und passe sie ggf. an</p>
+                    <p className="text-sm font-medium text-green-700 dark:text-green-400">{t('scan_success')}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{t('scan_success_sub')}</p>
                   </div>
                 </div>
               ) : (
@@ -670,7 +673,7 @@ export function RaeumeDialog({ open, onClose, onSubmit, defaultValues, recordId,
                     <IconPhotoPlus className="h-7 w-7 text-primary/70" />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-medium">Foto oder Dokument hierher ziehen oder auswählen</p>
+                    <p className="text-sm font-medium">{t('scan_upload')}</p>
                   </div>
                 </div>
               )}
@@ -694,11 +697,11 @@ export function RaeumeDialog({ open, onClose, onSubmit, defaultValues, recordId,
             <div className="grid grid-cols-3 gap-2">
               <Button type="button" variant="outline" size="sm" className="h-10 text-xs" disabled={scanning}
                 onClick={e => { e.stopPropagation(); cameraInputRef.current?.click(); }}>
-                <IconCamera className="h-3.5 w-3.5 mr-1" />Kamera
+                <IconCamera className="h-3.5 w-3.5 mr-1" />{t('scan_camera_btn')}
               </Button>
               <Button type="button" variant="outline" size="sm" className="h-10 text-xs" disabled={scanning}
                 onClick={e => { e.stopPropagation(); fileInputRef.current?.click(); }}>
-                <IconUpload className="h-3.5 w-3.5 mr-1" />Foto wählen
+                <IconUpload className="h-3.5 w-3.5 mr-1" />{t('scan_file_btn')}
               </Button>
               <Button type="button" variant="outline" size="sm" className="h-10 text-xs" disabled={scanning}
                 onClick={e => {
@@ -709,13 +712,13 @@ export function RaeumeDialog({ open, onClose, onSubmit, defaultValues, recordId,
                     setTimeout(() => { if (fileInputRef.current) fileInputRef.current.accept = 'image/*,application/pdf'; }, 100);
                   }
                 }}>
-                <IconFileText className="h-3.5 w-3.5 mr-1" />Dokument
+                <IconFileText className="h-3.5 w-3.5 mr-1" />{t('scan_doc_btn')}
               </Button>
             </div>
 
             <div className="relative">
               <Textarea
-                placeholder="Text eingeben oder einfügen, z.B. Notizen, E-Mails, Beschreibungen..."
+                placeholder={t('scan_text_placeholder')}
                 value={aiText}
                 onChange={e => {
                   setAiText(e.target.value);
@@ -743,7 +746,7 @@ export function RaeumeDialog({ open, onClose, onSubmit, defaultValues, recordId,
                     if (text) setAiText(prev => prev ? prev + '\n' + text : text);
                   } catch {}
                 }}
-                title="Paste"
+                title={t('paste')}
               >
                 <IconClipboard className="h-4 w-4" />
               </button>
@@ -757,7 +760,7 @@ export function RaeumeDialog({ open, onClose, onSubmit, defaultValues, recordId,
                 disabled={scanning}
                 onClick={() => handleAiExtract()}
               >
-                <IconSparkles className="h-3.5 w-3.5 mr-1.5" />Analysieren
+                <IconSparkles className="h-3.5 w-3.5 mr-1.5" />{t('scan_text_analyze')}
               </Button>
             )}
           </div>
@@ -852,7 +855,7 @@ export function RaeumeDialog({ open, onClose, onSubmit, defaultValues, recordId,
             {showErrors && missingRequired.length > 0 && (
               <p className="text-xs text-destructive flex items-center gap-1.5" role="alert">
                 <IconAlertCircle className="h-3.5 w-3.5 shrink-0" />
-                Bitte fülle die markierten Pflichtfelder aus.
+                {t('missing_required')}
               </p>
             )}
             {recordId && (
@@ -868,13 +871,13 @@ export function RaeumeDialog({ open, onClose, onSubmit, defaultValues, recordId,
             </div>
           )}
           <DialogFooter className="sticky bottom-0 border-t bg-background/95 backdrop-blur px-6 py-3 gap-2 max-sm:flex-row">
-            <Button type="button" variant="outline" onClick={onClose} className="max-sm:h-12 max-sm:flex-1 max-sm:text-base">Abbrechen</Button>
+            <Button type="button" variant="outline" onClick={onClose} className="max-sm:h-12 max-sm:flex-1 max-sm:text-base">{t('cancel')}</Button>
             <Button
               type="submit"
               className="max-sm:h-12 max-sm:flex-1 max-sm:text-base"
               disabled={saving || !isDirty || (showErrors && missingRequired.length > 0)}
             >
-              {saving ? 'Speichern...' : defaultValues ? 'Speichern' : 'Erstellen'}
+              {saving ? t('saving') : defaultValues ? t('save') : t('create')}
             </Button>
           </DialogFooter>
         </form>

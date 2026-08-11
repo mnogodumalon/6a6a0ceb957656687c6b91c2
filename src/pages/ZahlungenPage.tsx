@@ -15,12 +15,12 @@ import { ZahlungenDialog } from '@/components/dialogs/ZahlungenDialog';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { PageShell } from '@/components/PageShell';
 import { AI_PHOTO_SCAN, AI_PHOTO_LOCATION } from '@/config/ai-features';
+import { t, appLabel, fieldLabel, lookupLabel, dateFnsLocale, dateFormat } from '@/i18n';
 import { format, parseISO } from 'date-fns';
-import { de } from 'date-fns/locale';
 
 function formatDate(d?: string) {
   if (!d) return '—';
-  try { return format(parseISO(d), 'dd.MM.yyyy', { locale: de }); } catch { return d; }
+  try { return format(parseISO(d), dateFormat(), { locale: dateFnsLocale() }); } catch { return d; }
 }
 
 export default function ZahlungenPage() {
@@ -119,18 +119,18 @@ export default function ZahlungenPage() {
 
   return (
     <PageShell
-      title="Zahlungen"
-      subtitle={`${records.length} Zahlungen im System`}
+      title={appLabel('zahlungen')}
+      subtitle={`${records.length} ${t('in_system', { entity: appLabel('zahlungen') })}`}
       action={
         <Button onClick={() => setDialogOpen(true)} className="shrink-0 rounded-full shadow-sm">
-          <IconPlus className="h-4 w-4 mr-2" /> Hinzufügen
+          <IconPlus className="h-4 w-4 mr-2" /> {t('add')}
         </Button>
       }
     >
       <div className="relative w-full max-w-sm">
         <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Zahlungen suchen..."
+          placeholder={t('search_entity', { entity: appLabel('zahlungen') })}
           value={search}
           onChange={e => setSearch(e.target.value)}
           className="pl-9"
@@ -142,47 +142,47 @@ export default function ZahlungenPage() {
             <TableRow className="border-b border-input">
               <TableHead className="uppercase text-xs font-semibold text-secondary-foreground tracking-wider px-6 cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => toggleSort('anmeldung')}>
                 <span className="inline-flex items-center gap-1">
-                  Anmeldung
+                  {fieldLabel('zahlungen', 'anmeldung')}
                   {sortKey === 'anmeldung' ? (sortDir === 'asc' ? <IconArrowUp size={14} /> : <IconArrowDown size={14} />) : <IconArrowsUpDown size={14} className="opacity-30" />}
                 </span>
               </TableHead>
               <TableHead className="uppercase text-xs font-semibold text-secondary-foreground tracking-wider px-6 cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => toggleSort('rechnungsnummer')}>
                 <span className="inline-flex items-center gap-1">
-                  Rechnungsnummer
+                  {fieldLabel('zahlungen', 'rechnungsnummer')}
                   {sortKey === 'rechnungsnummer' ? (sortDir === 'asc' ? <IconArrowUp size={14} /> : <IconArrowDown size={14} />) : <IconArrowsUpDown size={14} className="opacity-30" />}
                 </span>
               </TableHead>
               <TableHead className="uppercase text-xs font-semibold text-secondary-foreground tracking-wider px-6 cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => toggleSort('betrag')}>
                 <span className="inline-flex items-center gap-1">
-                  Betrag (€)
+                  {fieldLabel('zahlungen', 'betrag')}
                   {sortKey === 'betrag' ? (sortDir === 'asc' ? <IconArrowUp size={14} /> : <IconArrowDown size={14} />) : <IconArrowsUpDown size={14} className="opacity-30" />}
                 </span>
               </TableHead>
               <TableHead className="uppercase text-xs font-semibold text-secondary-foreground tracking-wider px-6 cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => toggleSort('zahlungsdatum')}>
                 <span className="inline-flex items-center gap-1">
-                  Zahlungsdatum
+                  {fieldLabel('zahlungen', 'zahlungsdatum')}
                   {sortKey === 'zahlungsdatum' ? (sortDir === 'asc' ? <IconArrowUp size={14} /> : <IconArrowDown size={14} />) : <IconArrowsUpDown size={14} className="opacity-30" />}
                 </span>
               </TableHead>
               <TableHead className="uppercase text-xs font-semibold text-secondary-foreground tracking-wider px-6 cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => toggleSort('zahlungsart')}>
                 <span className="inline-flex items-center gap-1">
-                  Zahlungsart
+                  {fieldLabel('zahlungen', 'zahlungsart')}
                   {sortKey === 'zahlungsart' ? (sortDir === 'asc' ? <IconArrowUp size={14} /> : <IconArrowDown size={14} />) : <IconArrowsUpDown size={14} className="opacity-30" />}
                 </span>
               </TableHead>
               <TableHead className="uppercase text-xs font-semibold text-secondary-foreground tracking-wider px-6 cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => toggleSort('zahlungsstatus')}>
                 <span className="inline-flex items-center gap-1">
-                  Zahlungsstatus
+                  {fieldLabel('zahlungen', 'zahlungsstatus')}
                   {sortKey === 'zahlungsstatus' ? (sortDir === 'asc' ? <IconArrowUp size={14} /> : <IconArrowDown size={14} />) : <IconArrowsUpDown size={14} className="opacity-30" />}
                 </span>
               </TableHead>
               <TableHead className="uppercase text-xs font-semibold text-secondary-foreground tracking-wider px-6 cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => toggleSort('notizen_zahlung')}>
                 <span className="inline-flex items-center gap-1">
-                  Notizen
+                  {fieldLabel('zahlungen', 'notizen_zahlung')}
                   {sortKey === 'notizen_zahlung' ? (sortDir === 'asc' ? <IconArrowUp size={14} /> : <IconArrowDown size={14} />) : <IconArrowsUpDown size={14} className="opacity-30" />}
                 </span>
               </TableHead>
-              <TableHead className="w-24 uppercase text-xs font-semibold text-secondary-foreground tracking-wider px-6">Aktionen</TableHead>
+              <TableHead className="w-24 uppercase text-xs font-semibold text-secondary-foreground tracking-wider px-6">{t('actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -192,8 +192,8 @@ export default function ZahlungenPage() {
                 <TableCell className="font-medium">{record.fields.rechnungsnummer ?? '—'}</TableCell>
                 <TableCell>{record.fields.betrag ?? '—'}</TableCell>
                 <TableCell className="text-muted-foreground">{formatDate(record.fields.zahlungsdatum)}</TableCell>
-                <TableCell><span className="inline-flex items-center bg-secondary border border-[#bfdbfe] text-[#2563eb] rounded-[10px] px-2 py-1 text-sm font-medium">{record.fields.zahlungsart?.label ?? '—'}</span></TableCell>
-                <TableCell><span className="inline-flex items-center bg-secondary border border-[#bfdbfe] text-[#2563eb] rounded-[10px] px-2 py-1 text-sm font-medium">{record.fields.zahlungsstatus?.label ?? '—'}</span></TableCell>
+                <TableCell><span className="inline-flex items-center bg-secondary border border-[#bfdbfe] text-[#2563eb] rounded-[10px] px-2 py-1 text-sm font-medium">{lookupLabel('zahlungen', 'zahlungsart', record.fields.zahlungsart?.key) ?? record.fields.zahlungsart?.label ?? '—'}</span></TableCell>
+                <TableCell><span className="inline-flex items-center bg-secondary border border-[#bfdbfe] text-[#2563eb] rounded-[10px] px-2 py-1 text-sm font-medium">{lookupLabel('zahlungen', 'zahlungsstatus', record.fields.zahlungsstatus?.key) ?? record.fields.zahlungsstatus?.label ?? '—'}</span></TableCell>
                 <TableCell className="max-w-xs"><span className="truncate block">{record.fields.notizen_zahlung ?? '—'}</span></TableCell>
                 <TableCell>
                   <div className="flex gap-1">
@@ -210,7 +210,7 @@ export default function ZahlungenPage() {
             {filtered.length === 0 && (
               <TableRow>
                 <TableCell colSpan={8} className="text-center py-16 text-muted-foreground">
-                  {search ? 'Keine Ergebnisse gefunden.' : 'Noch keine Zahlungen. Jetzt hinzufügen!'}
+                  {search ? t('no_results') : t('no_data_yet', { entity: appLabel('zahlungen') })}
                 </TableCell>
               </TableRow>
             )}
@@ -233,8 +233,8 @@ export default function ZahlungenPage() {
         open={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
         onConfirm={handleDelete}
-        title="Zahlungen löschen"
-        description="Soll dieser Eintrag wirklich gelöscht werden? Diese Aktion kann nicht rückgängig gemacht werden."
+        title={t('delete_entity', { entity: appLabel('zahlungen') })}
+        description={t('confirm_delete_desc')}
       />
 
     </PageShell>

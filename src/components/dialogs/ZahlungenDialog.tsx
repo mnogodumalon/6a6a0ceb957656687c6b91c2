@@ -28,6 +28,7 @@ import type { ComputedContext } from '@/config/form-enhancements/types';
 import { applyFieldOrder, flattenFieldOrder, applyDefaults, evalComputed, numberInputProps, clampNumberValue, classifyComputed, extractApplookupRefs, mergeApplookupRefs, resolveApplookupRef } from '@/config/form-enhancements/types';
 import { formEnhancements, computedDeps, computedApplookupRefs } from '@/config/form-enhancements/Zahlungen';
 import { AttachmentsSection } from '@/components/AttachmentsSection';
+import { t, appLabel, fieldLabel, lookupLabel, localeTag, CURRENCY } from '@/i18n';
 import { Textarea } from '@/components/ui/textarea';
 import { Combobox } from '@/components/Combobox';
 import { AnmeldungenDialog } from '@/components/dialogs/AnmeldungenDialog';
@@ -231,7 +232,7 @@ export function ZahlungenDialog({ open, onClose, onSubmit, defaultValues, record
       await onSubmit(clean as Zahlungen['fields']);
       onClose();
     } catch (err) {
-      setSubmitError(err instanceof Error && err.message ? err.message : 'Speichern fehlgeschlagen.');
+      setSubmitError(err instanceof Error && err.message ? err.message : t('submit_error'));
     } finally {
       setSaving(false);
     }
@@ -303,7 +304,7 @@ export function ZahlungenDialog({ open, onClose, onSubmit, defaultValues, record
       setScanSuccess(true);
       setTimeout(() => setScanSuccess(false), 3000);
     } catch (err) {
-      console.error('Scan fehlgeschlagen:', err);
+      console.error(`${t('scan_error')}:`, err);
       alert(err instanceof Error ? err.message : String(err));
     } finally {
       setScanning(false);
@@ -338,37 +339,37 @@ export function ZahlungenDialog({ open, onClose, onSubmit, defaultValues, record
     }
   }, []);
 
-  const DIALOG_INTENT = defaultValues ? 'Zahlungen bearbeiten' : 'Zahlungen hinzufügen';
+  const DIALOG_INTENT = defaultValues
+    ? t('edit_entity', { entity: appLabel('zahlungen') })
+    : t('new_entity', { entity: appLabel('zahlungen') });
 
   const fieldBlocks: Record<string, React.ReactNode> = {
     'anmeldung': (
       <div key="anmeldung" className="space-y-1.5">
-        <Label htmlFor="anmeldung">Anmeldung <span className="text-destructive" aria-hidden="true">*</span></Label>
+        <Label htmlFor="anmeldung">{fieldLabel('zahlungen', 'anmeldung')} <span className="text-destructive" aria-hidden="true">*</span></Label>
         <Combobox
           id="anmeldung"
-          placeholder="Anmeldung aus Liste wählen"
+          placeholder=""
           items={anmeldungenListAll.map(r => ({
             id: r.record_id,
             label: String(r.fields.bemerkungen_anmeldung ?? r.record_id),
           }))}
           value={extractRecordId(fields.anmeldung)}
           onChange={id => setFields(f => ({ ...f, anmeldung: id ? createRecordUrl(APP_IDS.ANMELDUNGEN, id) : undefined }))}
-          searchPlaceholder="Suchen…"
-          emptyText="Kein Treffer"
           onCreateNew={(q) => openCreateAnmeldungen("anmeldung", q)}
-          createLabel="Neu in Anmeldungen"
+          createLabel={t('create_in', { entity: appLabel('anmeldungen') })}
         />
         {showErrors && !fields.anmeldung && (
-          <p className="text-xs text-destructive mt-1">Pflichtfeld</p>
+          <p className="text-xs text-destructive mt-1">{t('required_hint')}</p>
         )}
       </div>
     ),
     'rechnungsnummer': (
       <div key="rechnungsnummer" className="space-y-1.5">
-        <Label htmlFor="rechnungsnummer">Rechnungsnummer</Label>
+        <Label htmlFor="rechnungsnummer">{fieldLabel('zahlungen', 'rechnungsnummer')}</Label>
         <Input
           id="rechnungsnummer"
-          placeholder="z. B. RG-2026-0042"
+          placeholder=""
           value={fields.rechnungsnummer ?? ''}
           onChange={e => setFields(f => ({ ...f, rechnungsnummer: e.target.value }))}
         />
@@ -376,40 +377,40 @@ export function ZahlungenDialog({ open, onClose, onSubmit, defaultValues, record
     ),
     'betrag': (
       <div key="betrag" className="space-y-1.5">
-        <Label htmlFor="betrag">Betrag (€) <span className="text-destructive" aria-hidden="true">*</span></Label>
+        <Label htmlFor="betrag">{fieldLabel('zahlungen', 'betrag')} <span className="text-destructive" aria-hidden="true">*</span></Label>
         <Input
           id="betrag"
           type="number"
           step="any"
           {...numberInputProps(formEnhancements, 'betrag')}
-          placeholder="z. B. 120,00"
+          placeholder=""
           value={fields.betrag !== undefined ? fields.betrag : (computedValues['betrag'] ?? '')}
           onChange={e => setFields(f => ({ ...f, betrag: clampNumberValue(formEnhancements, 'betrag', e.target.value) }))}
         />
         {showErrors && !fields.betrag && (
-          <p className="text-xs text-destructive mt-1">Pflichtfeld</p>
+          <p className="text-xs text-destructive mt-1">{t('required_hint')}</p>
         )}
       </div>
     ),
     'zahlungsdatum': (
       <div key="zahlungsdatum" className="space-y-1.5">
-        <Label htmlFor="zahlungsdatum">Zahlungsdatum <span className="text-destructive" aria-hidden="true">*</span></Label>
+        <Label htmlFor="zahlungsdatum">{fieldLabel('zahlungen', 'zahlungsdatum')} <span className="text-destructive" aria-hidden="true">*</span></Label>
         <DatePicker
           id="zahlungsdatum"
-          placeholder="Wann wurde gezahlt?"
+          placeholder=""
           mode="date"
           value={fields.zahlungsdatum ?? null}
           onChange={v => setFields(f => ({ ...f, zahlungsdatum: v ?? undefined }))}
           required
         />
         {showErrors && !fields.zahlungsdatum && (
-          <p className="text-xs text-destructive mt-1">Pflichtfeld</p>
+          <p className="text-xs text-destructive mt-1">{t('required_hint')}</p>
         )}
       </div>
     ),
     'zahlungsart': (
       <div key="zahlungsart" className="space-y-1.5">
-        <Label htmlFor="zahlungsart">Zahlungsart <span className="text-destructive" aria-hidden="true">*</span></Label>
+        <Label htmlFor="zahlungsart">{fieldLabel('zahlungen', 'zahlungsart')} <span className="text-destructive" aria-hidden="true">*</span></Label>
         <div role="radiogroup" className="flex flex-wrap gap-1.5">
           <button
             type="button"
@@ -422,7 +423,7 @@ export function ZahlungenDialog({ open, onClose, onSubmit, defaultValues, record
                 : 'bg-background text-foreground border-input hover:bg-accent'
             }`}
           >
-            Barzahlung
+            {lookupLabel('zahlungen', 'zahlungsart', 'bar') ?? 'Barzahlung'}
           </button>
           <button
             type="button"
@@ -435,7 +436,7 @@ export function ZahlungenDialog({ open, onClose, onSubmit, defaultValues, record
                 : 'bg-background text-foreground border-input hover:bg-accent'
             }`}
           >
-            Überweisung
+            {lookupLabel('zahlungen', 'zahlungsart', 'ueberweisung') ?? 'Überweisung'}
           </button>
           <button
             type="button"
@@ -448,7 +449,7 @@ export function ZahlungenDialog({ open, onClose, onSubmit, defaultValues, record
                 : 'bg-background text-foreground border-input hover:bg-accent'
             }`}
           >
-            SEPA-Lastschrift
+            {lookupLabel('zahlungen', 'zahlungsart', 'sepa') ?? 'SEPA-Lastschrift'}
           </button>
           <button
             type="button"
@@ -461,7 +462,7 @@ export function ZahlungenDialog({ open, onClose, onSubmit, defaultValues, record
                 : 'bg-background text-foreground border-input hover:bg-accent'
             }`}
           >
-            Online-Zahlung
+            {lookupLabel('zahlungen', 'zahlungsart', 'online') ?? 'Online-Zahlung'}
           </button>
           <button
             type="button"
@@ -474,17 +475,17 @@ export function ZahlungenDialog({ open, onClose, onSubmit, defaultValues, record
                 : 'bg-background text-foreground border-input hover:bg-accent'
             }`}
           >
-            Sonstiges
+            {lookupLabel('zahlungen', 'zahlungsart', 'sonstiges') ?? 'Sonstiges'}
           </button>
         </div>
         {showErrors && !fields.zahlungsart && (
-          <p className="text-xs text-destructive mt-1">Pflichtfeld</p>
+          <p className="text-xs text-destructive mt-1">{t('required_hint')}</p>
         )}
       </div>
     ),
     'zahlungsstatus': (
       <div key="zahlungsstatus" className="space-y-1.5">
-        <Label htmlFor="zahlungsstatus">Zahlungsstatus <span className="text-destructive" aria-hidden="true">*</span></Label>
+        <Label htmlFor="zahlungsstatus">{fieldLabel('zahlungen', 'zahlungsstatus')} <span className="text-destructive" aria-hidden="true">*</span></Label>
         <div role="radiogroup" className="flex flex-wrap gap-1.5">
           <button
             type="button"
@@ -497,7 +498,7 @@ export function ZahlungenDialog({ open, onClose, onSubmit, defaultValues, record
                 : 'bg-background text-foreground border-input hover:bg-accent'
             }`}
           >
-            Offen
+            {lookupLabel('zahlungen', 'zahlungsstatus', 'offen') ?? 'Offen'}
           </button>
           <button
             type="button"
@@ -510,7 +511,7 @@ export function ZahlungenDialog({ open, onClose, onSubmit, defaultValues, record
                 : 'bg-background text-foreground border-input hover:bg-accent'
             }`}
           >
-            Bezahlt
+            {lookupLabel('zahlungen', 'zahlungsstatus', 'bezahlt') ?? 'Bezahlt'}
           </button>
           <button
             type="button"
@@ -523,7 +524,7 @@ export function ZahlungenDialog({ open, onClose, onSubmit, defaultValues, record
                 : 'bg-background text-foreground border-input hover:bg-accent'
             }`}
           >
-            Teilbezahlt
+            {lookupLabel('zahlungen', 'zahlungsstatus', 'teilbezahlt') ?? 'Teilbezahlt'}
           </button>
           <button
             type="button"
@@ -536,20 +537,20 @@ export function ZahlungenDialog({ open, onClose, onSubmit, defaultValues, record
                 : 'bg-background text-foreground border-input hover:bg-accent'
             }`}
           >
-            Erstattet
+            {lookupLabel('zahlungen', 'zahlungsstatus', 'erstattet') ?? 'Erstattet'}
           </button>
         </div>
         {showErrors && !fields.zahlungsstatus && (
-          <p className="text-xs text-destructive mt-1">Pflichtfeld</p>
+          <p className="text-xs text-destructive mt-1">{t('required_hint')}</p>
         )}
       </div>
     ),
     'notizen_zahlung': (
       <div key="notizen_zahlung" className="space-y-1.5">
-        <Label htmlFor="notizen_zahlung">Notizen</Label>
+        <Label htmlFor="notizen_zahlung">{fieldLabel('zahlungen', 'notizen_zahlung')}</Label>
         <Textarea
           id="notizen_zahlung"
-          placeholder="Referenz, Mahnung, Besonderheiten..."
+          placeholder=""
           value={fields.notizen_zahlung ?? ''}
           onChange={e => setFields(f => ({ ...f, notizen_zahlung: e.target.value }))}
           rows={3}
@@ -625,9 +626,9 @@ export function ZahlungenDialog({ open, onClose, onSubmit, defaultValues, record
     // Backend-Feld mit €-Label ODER virtueller Computed-Key, dessen Name nach Geld aussieht.
     const looksLikeCurrency = CURRENCY_KEYS.has(k) || /(?:kosten|preis|betrag|gesamt|netto|brutto|summe|mwst|rabatt|anzahlung|umsatz|saldo)/i.test(k);
     if (looksLikeCurrency) {
-      return n.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      return n.toLocaleString(localeTag(), { style: 'currency', currency: CURRENCY, minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
-    return n.toLocaleString('de-DE', { maximumFractionDigits: 2 });
+    return n.toLocaleString(localeTag(), { maximumFractionDigits: 2 });
   }
 
   return (
@@ -649,14 +650,14 @@ export function ZahlungenDialog({ open, onClose, onSubmit, defaultValues, record
               }`}
             >
               <IconSparkles className={`h-3.5 w-3.5 ${aiOpen ? '' : 'text-primary'}`} />
-              <span className="hidden sm:inline">KI-Ausfüllen</span>
+              <span className="hidden sm:inline">{t('smart_fill')}</span>
               <IconChevronDown className={`h-3 w-3 transition-transform ${aiOpen ? 'rotate-180' : ''}`} />
             </button>
           )}
         </DialogHeader>
         {enablePhotoScan && aiOpen && (
           <div id="ai-fill-panel" className="border-b bg-muted/20 px-6 py-4 space-y-3">
-            <p className="text-xs text-muted-foreground">Versteht Fotos, Dokumente und Text und füllt alles für dich aus</p>
+            <p className="text-xs text-muted-foreground">{t('scan_header_sub')}</p>
             <div className="flex items-start gap-2 pl-0.5">
               <Checkbox
                 id="ai-use-personal-info"
@@ -666,21 +667,21 @@ export function ZahlungenDialog({ open, onClose, onSubmit, defaultValues, record
               />
               <span className="text-xs text-muted-foreground leading-snug">
                 <Label htmlFor="ai-use-personal-info" className="text-xs font-normal text-muted-foreground cursor-pointer inline">
-                  KI-Assistent darf zusätzlich Informationen zu meiner Person verwenden
+                  {t('useinfo_label')}
                 </Label>
                 {' '}
                 <button type="button" onClick={handleShowProfileInfo} className="text-xs text-primary hover:underline whitespace-nowrap">
-                  {profileLoading ? 'Lade...' : '(mehr Infos)'}
+                  {profileLoading ? t('useinfo_loading') : `(${t('useinfo_more')})`}
                 </button>
               </span>
             </div>
             {showProfileInfo && (
               <div className="rounded-md border bg-muted/50 p-2 text-xs max-h-40 overflow-y-auto">
-                <p className="font-medium mb-1">Folgende Infos über dich können von der KI genutzt werden:</p>
+                <p className="font-medium mb-1">{t('profile_preamble')}</p>
                 {profileData ? Object.values(profileData).map((v, i) => (
                   <span key={i}>{i > 0 && ", "}{typeof v === "object" ? JSON.stringify(v) : String(v)}</span>
                 )) : (
-                  <span className="text-muted-foreground">Profil konnte nicht geladen werden</span>
+                  <span className="text-muted-foreground">{t('useinfo_error')}</span>
                 )}
               </div>
             )}
@@ -711,8 +712,8 @@ export function ZahlungenDialog({ open, onClose, onSubmit, defaultValues, record
                     <IconLoader2 className="h-7 w-7 text-primary animate-spin" />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-medium">KI analysiert...</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">Felder werden automatisch ausgefüllt</p>
+                    <p className="text-sm font-medium">{t('scan_analyzing')}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{t('scan_analyzing_sub')}</p>
                   </div>
                 </div>
               ) : scanSuccess ? (
@@ -721,8 +722,8 @@ export function ZahlungenDialog({ open, onClose, onSubmit, defaultValues, record
                     <IconCircleCheck className="h-7 w-7 text-green-600 dark:text-green-400" />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-medium text-green-700 dark:text-green-400">Felder ausgefüllt!</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">Prüfe die Werte und passe sie ggf. an</p>
+                    <p className="text-sm font-medium text-green-700 dark:text-green-400">{t('scan_success')}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{t('scan_success_sub')}</p>
                   </div>
                 </div>
               ) : (
@@ -731,7 +732,7 @@ export function ZahlungenDialog({ open, onClose, onSubmit, defaultValues, record
                     <IconPhotoPlus className="h-7 w-7 text-primary/70" />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-medium">Foto oder Dokument hierher ziehen oder auswählen</p>
+                    <p className="text-sm font-medium">{t('scan_upload')}</p>
                   </div>
                 </div>
               )}
@@ -755,11 +756,11 @@ export function ZahlungenDialog({ open, onClose, onSubmit, defaultValues, record
             <div className="grid grid-cols-3 gap-2">
               <Button type="button" variant="outline" size="sm" className="h-10 text-xs" disabled={scanning}
                 onClick={e => { e.stopPropagation(); cameraInputRef.current?.click(); }}>
-                <IconCamera className="h-3.5 w-3.5 mr-1" />Kamera
+                <IconCamera className="h-3.5 w-3.5 mr-1" />{t('scan_camera_btn')}
               </Button>
               <Button type="button" variant="outline" size="sm" className="h-10 text-xs" disabled={scanning}
                 onClick={e => { e.stopPropagation(); fileInputRef.current?.click(); }}>
-                <IconUpload className="h-3.5 w-3.5 mr-1" />Foto wählen
+                <IconUpload className="h-3.5 w-3.5 mr-1" />{t('scan_file_btn')}
               </Button>
               <Button type="button" variant="outline" size="sm" className="h-10 text-xs" disabled={scanning}
                 onClick={e => {
@@ -770,13 +771,13 @@ export function ZahlungenDialog({ open, onClose, onSubmit, defaultValues, record
                     setTimeout(() => { if (fileInputRef.current) fileInputRef.current.accept = 'image/*,application/pdf'; }, 100);
                   }
                 }}>
-                <IconFileText className="h-3.5 w-3.5 mr-1" />Dokument
+                <IconFileText className="h-3.5 w-3.5 mr-1" />{t('scan_doc_btn')}
               </Button>
             </div>
 
             <div className="relative">
               <Textarea
-                placeholder="Text eingeben oder einfügen, z.B. Notizen, E-Mails, Beschreibungen..."
+                placeholder={t('scan_text_placeholder')}
                 value={aiText}
                 onChange={e => {
                   setAiText(e.target.value);
@@ -804,7 +805,7 @@ export function ZahlungenDialog({ open, onClose, onSubmit, defaultValues, record
                     if (text) setAiText(prev => prev ? prev + '\n' + text : text);
                   } catch {}
                 }}
-                title="Paste"
+                title={t('paste')}
               >
                 <IconClipboard className="h-4 w-4" />
               </button>
@@ -818,7 +819,7 @@ export function ZahlungenDialog({ open, onClose, onSubmit, defaultValues, record
                 disabled={scanning}
                 onClick={() => handleAiExtract()}
               >
-                <IconSparkles className="h-3.5 w-3.5 mr-1.5" />Analysieren
+                <IconSparkles className="h-3.5 w-3.5 mr-1.5" />{t('scan_text_analyze')}
               </Button>
             )}
           </div>
@@ -913,7 +914,7 @@ export function ZahlungenDialog({ open, onClose, onSubmit, defaultValues, record
             {showErrors && missingRequired.length > 0 && (
               <p className="text-xs text-destructive flex items-center gap-1.5" role="alert">
                 <IconAlertCircle className="h-3.5 w-3.5 shrink-0" />
-                Bitte fülle die markierten Pflichtfelder aus.
+                {t('missing_required')}
               </p>
             )}
             {recordId && (
@@ -929,13 +930,13 @@ export function ZahlungenDialog({ open, onClose, onSubmit, defaultValues, record
             </div>
           )}
           <DialogFooter className="sticky bottom-0 border-t bg-background/95 backdrop-blur px-6 py-3 gap-2 max-sm:flex-row">
-            <Button type="button" variant="outline" onClick={onClose} className="max-sm:h-12 max-sm:flex-1 max-sm:text-base">Abbrechen</Button>
+            <Button type="button" variant="outline" onClick={onClose} className="max-sm:h-12 max-sm:flex-1 max-sm:text-base">{t('cancel')}</Button>
             <Button
               type="submit"
               className="max-sm:h-12 max-sm:flex-1 max-sm:text-base"
               disabled={saving || !isDirty || (showErrors && missingRequired.length > 0)}
             >
-              {saving ? 'Speichern...' : defaultValues ? 'Speichern' : 'Erstellen'}
+              {saving ? t('saving') : defaultValues ? t('save') : t('create')}
             </Button>
           </DialogFooter>
         </form>

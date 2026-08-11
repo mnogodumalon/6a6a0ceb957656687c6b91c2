@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import type { Raeume, Dozenten, KurseWorkshops, Teilnehmer, Anmeldungen, Zahlungen } from '@/types/app';
 import { LivingAppsService } from '@/services/livingAppsService';
+import { t } from '@/i18n';
 
 /** Dashboard data + the OPTIMISTIC-WRITE API.
  *
@@ -40,7 +41,7 @@ export function useDashboardData() {
       setAnmeldungen(anmeldungenData);
       setZahlungen(zahlungenData);
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Fehler beim Laden der Daten'));
+      setError(err instanceof Error ? err : new Error(t('data_load_failed')));
     } finally {
       setLoading(false);
     }

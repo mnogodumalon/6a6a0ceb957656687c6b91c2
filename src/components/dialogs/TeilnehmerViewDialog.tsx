@@ -8,12 +8,12 @@ import { Label } from '@/components/ui/label';
 import { APP_IDS } from '@/types/app';
 import { AttachmentsSection } from '@/components/AttachmentsSection';
 import { IconPencil } from '@tabler/icons-react';
+import { t, appLabel, fieldLabel, lookupLabel, dateFnsLocale, dateFormat } from '@/i18n';
 import { format, parseISO } from 'date-fns';
-import { de } from 'date-fns/locale';
 
 function formatDate(d?: string) {
   if (!d) return '—';
-  try { return format(parseISO(d), 'dd.MM.yyyy', { locale: de }); } catch { return d; }
+  try { return format(parseISO(d), dateFormat(), { locale: dateFnsLocale() }); } catch { return d; }
 }
 
 interface TeilnehmerViewDialogProps {
@@ -30,62 +30,62 @@ export function TeilnehmerViewDialog({ open, onClose, record, onEdit }: Teilnehm
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Teilnehmer anzeigen</DialogTitle>
+          <DialogTitle>{t('view_entity', { entity: appLabel('teilnehmer') })}</DialogTitle>
         </DialogHeader>
         <div className="flex justify-end">
           <Button size="sm" onClick={() => { onClose(); onEdit(record); }}>
             <IconPencil className="h-3.5 w-3.5 mr-1.5" />
-            Bearbeiten
+            {t('edit_button')}
           </Button>
         </div>
 
         <div className="space-y-4">
           <div className="space-y-1">
-            <Label className="text-xs text-muted-foreground">Vorname</Label>
+            <Label className="text-xs text-muted-foreground">{fieldLabel('teilnehmer', 'vorname')}</Label>
             <p className="text-sm">{record.fields.vorname ?? '—'}</p>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs text-muted-foreground">Nachname</Label>
+            <Label className="text-xs text-muted-foreground">{fieldLabel('teilnehmer', 'nachname')}</Label>
             <p className="text-sm">{record.fields.nachname ?? '—'}</p>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs text-muted-foreground">Geburtsdatum</Label>
+            <Label className="text-xs text-muted-foreground">{fieldLabel('teilnehmer', 'geburtsdatum')}</Label>
             <p className="text-sm">{formatDate(record.fields.geburtsdatum)}</p>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs text-muted-foreground">E-Mail-Adresse</Label>
+            <Label className="text-xs text-muted-foreground">{fieldLabel('teilnehmer', 'email')}</Label>
             <p className="text-sm">{record.fields.email ?? '—'}</p>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs text-muted-foreground">Telefonnummer</Label>
+            <Label className="text-xs text-muted-foreground">{fieldLabel('teilnehmer', 'telefon')}</Label>
             <p className="text-sm">{record.fields.telefon ?? '—'}</p>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs text-muted-foreground">Straße</Label>
+            <Label className="text-xs text-muted-foreground">{fieldLabel('teilnehmer', 'strasse')}</Label>
             <p className="text-sm">{record.fields.strasse ?? '—'}</p>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs text-muted-foreground">Hausnummer</Label>
+            <Label className="text-xs text-muted-foreground">{fieldLabel('teilnehmer', 'hausnummer')}</Label>
             <p className="text-sm">{record.fields.hausnummer ?? '—'}</p>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs text-muted-foreground">Postleitzahl</Label>
+            <Label className="text-xs text-muted-foreground">{fieldLabel('teilnehmer', 'plz')}</Label>
             <p className="text-sm">{record.fields.plz ?? '—'}</p>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs text-muted-foreground">Ort</Label>
+            <Label className="text-xs text-muted-foreground">{fieldLabel('teilnehmer', 'ort')}</Label>
             <p className="text-sm">{record.fields.ort ?? '—'}</p>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs text-muted-foreground">Notfallkontakt – Name</Label>
+            <Label className="text-xs text-muted-foreground">{fieldLabel('teilnehmer', 'notfall_name')}</Label>
             <p className="text-sm">{record.fields.notfall_name ?? '—'}</p>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs text-muted-foreground">Notfallkontakt – Telefon</Label>
+            <Label className="text-xs text-muted-foreground">{fieldLabel('teilnehmer', 'notfall_telefon')}</Label>
             <p className="text-sm">{record.fields.notfall_telefon ?? '—'}</p>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs text-muted-foreground">Anmerkungen</Label>
+            <Label className="text-xs text-muted-foreground">{fieldLabel('teilnehmer', 'anmerkungen_tn')}</Label>
             <p className="text-sm whitespace-pre-wrap">{record.fields.anmerkungen_tn ?? '—'}</p>
           </div>
           <div className="pt-2 border-t border-border">

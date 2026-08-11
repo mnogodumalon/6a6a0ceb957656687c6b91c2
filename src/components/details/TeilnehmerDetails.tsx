@@ -4,6 +4,7 @@ import { extractRecordId } from '@/services/livingAppsService';
 import {
   RecordSection, RecordField, RecordRelation, RecordAttachments,
 } from '@/components/widgets/RecordView';
+import { t, appLabel, fieldLabel } from '@/i18n';
 import { SatelliteSection } from '@/components/SatelliteSection';
 
 export interface TeilnehmerDetailsProps {
@@ -25,25 +26,25 @@ export function TeilnehmerDetails({
 }: TeilnehmerDetailsProps) {
   return (
     <>
-      <RecordSection title="Details" cols={2}>
-        <RecordField label="Vorname" value={record.fields.vorname} format="text" />
-        <RecordField label="Nachname" value={record.fields.nachname} format="text" />
-        <RecordField label="Geburtsdatum" value={record.fields.geburtsdatum} format="date" />
-        <RecordField label="E-Mail-Adresse" value={record.fields.email} format="email" />
-        <RecordField label="Telefonnummer" value={record.fields.telefon} format="text" />
-        <RecordField label="Straße" value={record.fields.strasse} format="text" />
-        <RecordField label="Hausnummer" value={record.fields.hausnummer} format="text" />
-        <RecordField label="Postleitzahl" value={record.fields.plz} format="text" />
-        <RecordField label="Ort" value={record.fields.ort} format="text" />
-        <RecordField label="Notfallkontakt – Name" value={record.fields.notfall_name} format="text" />
-        <RecordField label="Notfallkontakt – Telefon" value={record.fields.notfall_telefon} format="text" />
-        <RecordField label="Anmerkungen" value={record.fields.anmerkungen_tn} format="longtext" className="md:col-span-2" />
+      <RecordSection title={t('details')} cols={2}>
+        <RecordField label={fieldLabel('teilnehmer', 'vorname')} value={record.fields.vorname} format="text" />
+        <RecordField label={fieldLabel('teilnehmer', 'nachname')} value={record.fields.nachname} format="text" />
+        <RecordField label={fieldLabel('teilnehmer', 'geburtsdatum')} value={record.fields.geburtsdatum} format="date" />
+        <RecordField label={fieldLabel('teilnehmer', 'email')} value={record.fields.email} format="email" />
+        <RecordField label={fieldLabel('teilnehmer', 'telefon')} value={record.fields.telefon} format="text" />
+        <RecordField label={fieldLabel('teilnehmer', 'strasse')} value={record.fields.strasse} format="text" />
+        <RecordField label={fieldLabel('teilnehmer', 'hausnummer')} value={record.fields.hausnummer} format="text" />
+        <RecordField label={fieldLabel('teilnehmer', 'plz')} value={record.fields.plz} format="text" />
+        <RecordField label={fieldLabel('teilnehmer', 'ort')} value={record.fields.ort} format="text" />
+        <RecordField label={fieldLabel('teilnehmer', 'notfall_name')} value={record.fields.notfall_name} format="text" />
+        <RecordField label={fieldLabel('teilnehmer', 'notfall_telefon')} value={record.fields.notfall_telefon} format="text" />
+        <RecordField label={fieldLabel('teilnehmer', 'anmerkungen_tn')} value={record.fields.anmerkungen_tn} format="longtext" className="md:col-span-2" />
       </RecordSection>
 
       <SatelliteSection
-        title="Anmeldungen"
+        title={appLabel('anmeldungen')}
         items={anmeldungenList.filter(r => extractRecordId(r.fields.teilnehmer) === record.record_id)}
-        map={r => ({ name: 'Anmeldungen', meta: r.fields.anmeldedatum })}
+        map={r => ({ name: appLabel('anmeldungen'), meta: r.fields.anmeldedatum })}
         onOpen={onOpenAnmeldungen}
         onAdd={onAddAnmeldungen}
         getKey={r => r.record_id}

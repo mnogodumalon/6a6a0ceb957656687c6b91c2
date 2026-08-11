@@ -14,6 +14,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { AI_PHOTO_SCAN, AI_PHOTO_LOCATION } from '@/config/ai-features';
 import { formEnhancements } from '@/config/form-enhancements/Teilnehmer';
 import { evalComputed } from '@/config/form-enhancements/types';
+import { t, appLabel, fieldLabel, localeTag, CURRENCY } from '@/i18n';
 
 export default function TeilnehmerDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -56,11 +57,11 @@ export default function TeilnehmerDetailPage() {
   if (!record) {
     return (
       <RecordViewEmpty
-        title="Eintrag nicht gefunden"
+        title={t('not_found')}
         action={
           <Button variant="ghost" onClick={() => navigate('/teilnehmer')}>
             <IconArrowLeft className="h-4 w-4 mr-1.5" />
-            Zurück
+            {t('back')}
           </Button>
         }
       />
@@ -71,18 +72,18 @@ export default function TeilnehmerDetailPage() {
     <RecordView
       onBack={() => navigate('/teilnehmer')}
       onEdit={() => setEditing(true)}
-      backLabel="Zurück"
-      editLabel="Bearbeiten"
+      backLabel={t('back')}
+      editLabel={t('edit_button')}
     >
-      <RecordHeader title={record.fields.vorname ?? 'Teilnehmer'} />
+      <RecordHeader title={record.fields.vorname ?? appLabel('teilnehmer')} />
 
       {(() => {
         const lookupLists: Record<string, unknown> = {
         };
         const fmtComputed = (k: string, n: number) =>
           /(?:kosten|preis|betrag|gesamt|netto|brutto|summe|mwst|rabatt|anzahlung|umsatz|saldo)/i.test(k)
-            ? n.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2, maximumFractionDigits: 2 })
-            : n.toLocaleString('de-DE', { maximumFractionDigits: 2 });
+            ? n.toLocaleString(localeTag(), { style: 'currency', currency: CURRENCY, minimumFractionDigits: 2, maximumFractionDigits: 2 })
+            : n.toLocaleString(localeTag(), { maximumFractionDigits: 2 });
         const computedFacts = Object.entries(formEnhancements.computed)
           .map(([key, formula]) => {
             const v = evalComputed(formula, record!.fields as Record<string, unknown>, { lookupLists });
@@ -94,19 +95,19 @@ export default function TeilnehmerDetailPage() {
         return computedFacts.length > 0 ? <RecordKeyFacts items={computedFacts} /> : null;
       })()}
 
-      <RecordSection title="Details" cols={2}>
-        <RecordField label="Vorname" value={record.fields.vorname} format="text" />
-        <RecordField label="Nachname" value={record.fields.nachname} format="text" />
-        <RecordField label="Geburtsdatum" value={record.fields.geburtsdatum} format="date" />
-        <RecordField label="E-Mail-Adresse" value={record.fields.email} format="email" />
-        <RecordField label="Telefonnummer" value={record.fields.telefon} format="text" />
-        <RecordField label="Straße" value={record.fields.strasse} format="text" />
-        <RecordField label="Hausnummer" value={record.fields.hausnummer} format="text" />
-        <RecordField label="Postleitzahl" value={record.fields.plz} format="text" />
-        <RecordField label="Ort" value={record.fields.ort} format="text" />
-        <RecordField label="Notfallkontakt – Name" value={record.fields.notfall_name} format="text" />
-        <RecordField label="Notfallkontakt – Telefon" value={record.fields.notfall_telefon} format="text" />
-        <RecordField label="Anmerkungen" value={record.fields.anmerkungen_tn} format="longtext" className="md:col-span-2" />
+      <RecordSection title={t('details')} cols={2}>
+        <RecordField label={fieldLabel('teilnehmer', 'vorname')} value={record.fields.vorname} format="text" />
+        <RecordField label={fieldLabel('teilnehmer', 'nachname')} value={record.fields.nachname} format="text" />
+        <RecordField label={fieldLabel('teilnehmer', 'geburtsdatum')} value={record.fields.geburtsdatum} format="date" />
+        <RecordField label={fieldLabel('teilnehmer', 'email')} value={record.fields.email} format="email" />
+        <RecordField label={fieldLabel('teilnehmer', 'telefon')} value={record.fields.telefon} format="text" />
+        <RecordField label={fieldLabel('teilnehmer', 'strasse')} value={record.fields.strasse} format="text" />
+        <RecordField label={fieldLabel('teilnehmer', 'hausnummer')} value={record.fields.hausnummer} format="text" />
+        <RecordField label={fieldLabel('teilnehmer', 'plz')} value={record.fields.plz} format="text" />
+        <RecordField label={fieldLabel('teilnehmer', 'ort')} value={record.fields.ort} format="text" />
+        <RecordField label={fieldLabel('teilnehmer', 'notfall_name')} value={record.fields.notfall_name} format="text" />
+        <RecordField label={fieldLabel('teilnehmer', 'notfall_telefon')} value={record.fields.notfall_telefon} format="text" />
+        <RecordField label={fieldLabel('teilnehmer', 'anmerkungen_tn')} value={record.fields.anmerkungen_tn} format="longtext" className="md:col-span-2" />
       </RecordSection>
 
       <RecordAttachments appId={APP_IDS.TEILNEHMER} recordId={record.record_id} />
@@ -114,7 +115,7 @@ export default function TeilnehmerDetailPage() {
       <div className="flex justify-end pt-2">
         <Button variant="ghost" onClick={() => setDeleteOpen(true)} className="text-destructive hover:text-destructive">
           <IconTrash className="h-4 w-4 mr-1.5" />
-          Löschen
+          {t('delete')}
         </Button>
       </div>
 
@@ -132,8 +133,8 @@ export default function TeilnehmerDetailPage() {
         open={deleteOpen}
         onClose={() => setDeleteOpen(false)}
         onConfirm={handleDelete}
-        title="Teilnehmer löschen"
-        description="Soll dieser Eintrag wirklich gelöscht werden? Diese Aktion kann nicht rückgängig gemacht werden."
+        title={t('delete_entity', { entity: appLabel('teilnehmer') })}
+        description={t('confirm_delete_desc')}
       />
     </RecordView>
   );

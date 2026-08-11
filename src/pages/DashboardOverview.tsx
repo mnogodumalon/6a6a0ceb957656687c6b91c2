@@ -44,6 +44,91 @@ import {
 } from '@tabler/icons-react';
 import { Button } from '@/components/ui/button';
 
+import { makeT } from '@/i18n';
+
+const tt = makeT({
+  de: {
+    ohne_titel: 'Ohne Titel',
+    abgeschlossen: 'Abgeschlossen',
+    anmeldung: 'Anmeldung',
+    bezahlt: 'Bezahlt',
+    zahlung_als_bezahlt_markiert: 'Zahlung {p0} als bezahlt markiert',
+    kurs: 'Kurs',
+    noch_keine_bevorstehenden_kurse: 'Noch keine bevorstehenden Kurse geplant.',
+    und_weitere_veranstaltungen: ' und {p0} weitere Veranstaltungen',
+    und_weitere_veranstaltung: ' und {p0} weitere Veranstaltung',
+    als_naechstes_mit_am: 'Als nächstes: „{p0}" mit {p1} am {p2}{p3}.',
+    als_naechstes_am: 'Als nächstes: „{p0}" am {p1}{p2}.',
+    als_bezahlt_markieren: 'Als bezahlt markieren',
+    offene: 'offene',
+    zahlung: 'Zahlung',
+    zahlungen: 'Zahlungen',
+    ueberfaellig: 'überfällig',
+    rechnung: ' — Rechnung {p0}',
+    neuer_kurs: 'Neuer Kurs',
+    aktive_kurse: 'Aktive Kurse',
+    neue_anmeldungen: 'Neue Anmeldungen',
+    warteliste: 'Warteliste',
+    offene_zahlungen: 'Offene Zahlungen',
+    unbekannt: 'Unbekannt',
+    angemeldet: 'Angemeldet',
+    abschliessen: '✓ Abschließen',
+    keine_neuen_anmeldungen: 'Keine neuen Anmeldungen',
+    anmeldung_erfassen: 'Anmeldung erfassen',
+    ohne_nummer: 'Ohne Nummer',
+    ueberfaellig_2: 'Überfällig',
+    offen: 'Offen',
+    faellig: ' · Fällig: {p0}',
+    bezahlt_2: '✓ Bezahlt',
+    alle_zahlungen_beglichen: 'Alle Zahlungen beglichen',
+    zahlung_erfassen: 'Zahlung erfassen',
+    dozent: 'Dozent',
+    raum: 'Raum',
+    teilnehmer: 'Teilnehmer',
+    abschliessen_2: 'Abschließen',
+  },
+  en: {
+    ohne_titel: 'Untitled',
+    abgeschlossen: 'Completed',
+    anmeldung: 'Registration',
+    bezahlt: 'Paid',
+    zahlung_als_bezahlt_markiert: 'Payment {p0} marked as paid',
+    kurs: 'Course',
+    noch_keine_bevorstehenden_kurse: 'No upcoming courses scheduled yet.',
+    und_weitere_veranstaltungen: ' and {p0} more events',
+    und_weitere_veranstaltung: ' and {p0} more event',
+    als_naechstes_mit_am: 'Up next: "{p0}" with {p1} on {p2}{p3}.',
+    als_naechstes_am: 'Up next: "{p0}" on {p1}{p2}.',
+    als_bezahlt_markieren: 'Mark as Paid',
+    offene: 'open',
+    zahlung: 'Payment',
+    zahlungen: 'Payments',
+    ueberfaellig: 'overdue',
+    rechnung: ' — Invoice {p0}',
+    neuer_kurs: 'New Course',
+    aktive_kurse: 'Active Courses',
+    neue_anmeldungen: 'New Registrations',
+    warteliste: 'Waitlist',
+    offene_zahlungen: 'Open Payments',
+    unbekannt: 'Unknown',
+    angemeldet: 'Registered',
+    abschliessen: '✓ Complete',
+    keine_neuen_anmeldungen: 'No New Registrations',
+    anmeldung_erfassen: 'Add Registration',
+    ohne_nummer: 'No Number',
+    ueberfaellig_2: 'Overdue',
+    offen: 'Open',
+    faellig: ' · Due: {p0}',
+    bezahlt_2: '✓ Paid',
+    alle_zahlungen_beglichen: 'All Payments Settled',
+    zahlung_erfassen: 'Add Payment',
+    dozent: 'Instructor',
+    raum: 'Room',
+    teilnehmer: 'Participants',
+    abschliessen_2: 'Complete',
+  },
+});
+
 type OverlayItem =
   | { type: 'kurs'; id: string }
   | { type: 'anmeldung'; id: string }
@@ -153,7 +238,7 @@ export default function DashboardOverview() {
           id: `kurs:${k.record_id}`,
           start: k.fields.startdatum!,
           end: k.fields.enddatum,
-          title: k.fields.titel ?? 'Ohne Titel',
+          title: k.fields.titel ?? tt('ohne_titel'),
           subtitle: k.dozentName || k.raumName || undefined,
           tone: toneForKurs(k),
         })),
@@ -166,13 +251,13 @@ export default function DashboardOverview() {
       const prev = anmeldungen.map(x => x);
       setAnmeldungen(prev.map(x =>
         x.record_id === a.record_id
-          ? { ...x, fields: { ...x.fields, status_anmeldung: { key: 'abgeschlossen', label: 'Abgeschlossen' } } }
+          ? { ...x, fields: { ...x.fields, status_anmeldung: { key: 'abgeschlossen', label: tt('abgeschlossen') } } }
           : x,
       ));
       try {
         await LivingAppsService.updateAnmeldungenEntry(a.record_id, { status_anmeldung: 'abgeschlossen' });
         undoToast(
-          `${enrichedAnmeldungen.find(x => x.record_id === a.record_id)?.teilnehmerName ?? 'Anmeldung'} abgeschlossen`,
+          `${enrichedAnmeldungen.find(x => x.record_id === a.record_id)?.teilnehmerName ?? tt('anmeldung')} abgeschlossen`,
           async () => {
             await LivingAppsService.updateAnmeldungenEntry(a.record_id, { status_anmeldung: lookupKey(a.fields.status_anmeldung) ?? 'angemeldet' });
             fetchAll();
@@ -191,13 +276,13 @@ export default function DashboardOverview() {
       const prevZahlungsstatus = z.fields.zahlungsstatus;
       setZahlungen(zahlungen.map(x =>
         x.record_id === z.record_id
-          ? { ...x, fields: { ...x.fields, zahlungsstatus: { key: 'bezahlt', label: 'Bezahlt' } } }
+          ? { ...x, fields: { ...x.fields, zahlungsstatus: { key: 'bezahlt', label: tt('bezahlt') } } }
           : x,
       ));
       try {
         await LivingAppsService.updateZahlungenEntry(z.record_id, { zahlungsstatus: 'bezahlt' });
         undoToast(
-          `Zahlung ${z.fields.rechnungsnummer ?? ''} als bezahlt markiert`,
+          tt('zahlung_als_bezahlt_markiert', { p0: z.fields.rechnungsnummer ?? '' }),
           async () => {
             await LivingAppsService.updateZahlungenEntry(z.record_id, { zahlungsstatus: lookupKey(prevZahlungsstatus) ?? 'offen' });
             fetchAll();
@@ -225,7 +310,7 @@ export default function DashboardOverview() {
       try {
         await LivingAppsService.updateKurseWorkshop(rid, { startdatum: newStart, ...(newEnd ? { enddatum: newEnd } : {}) });
         undoToast(
-          `${prev.fields.titel ?? 'Kurs'} verschoben`,
+          `${prev.fields.titel ?? tt('kurs')} verschoben`,
           async () => {
             await LivingAppsService.updateKurseWorkshop(rid, { startdatum: prev.fields.startdatum, enddatum: prev.fields.enddatum });
             fetchAll();
@@ -248,12 +333,12 @@ export default function DashboardOverview() {
   }, [enrichedKurse, clock]);
 
   const contextLine = useMemo(() => {
-    if (naechsteKurse.length === 0) return 'Noch keine bevorstehenden Kurse geplant.';
-    const title = naechsteKurse[0].fields.titel ?? 'Kurs';
+    if (naechsteKurse.length === 0) return tt('noch_keine_bevorstehenden_kurse');
+    const title = naechsteKurse[0].fields.titel ?? tt('kurs');
     const dozent = naechsteKurse[0].dozentName;
     const date = formatDate(naechsteKurse[0].fields.startdatum);
-    const rest = naechsteKurse.length > 1 ? ` und ${naechsteKurse.length - 1} weitere Veranstaltung${naechsteKurse.length > 2 ? 'en' : ''}` : '';
-    return `Als nächstes: „${title}"${dozent ? ` mit ${dozent}` : ''} am ${date}${rest}.`;
+    const rest = (naechsteKurse.length > 1 ? naechsteKurse.length > 2 ? tt('und_weitere_veranstaltungen', { p0: naechsteKurse.length - 1 }) : tt('und_weitere_veranstaltung', { p0: naechsteKurse.length - 1 }) : "");
+    return (dozent ? tt('als_naechstes_mit_am', { p0: title, p1: dozent, p2: date, p3: rest }) : tt('als_naechstes_am', { p0: title, p1: date, p2: rest }));
   }, [naechsteKurse]);
 
   if (loading) return <DashboardSkeleton />;
@@ -264,12 +349,12 @@ export default function DashboardOverview() {
     <HeroBanner
       icon={<IconAlertTriangle size={18} />}
       action={{
-        label: 'Als bezahlt markieren',
+        label: tt('als_bezahlt_markieren'),
         onClick: () => markBezahlt(ueberfaelligeZahlungen[0]),
       }}
     >
-      <b>{ueberfaelligeZahlungen.length} offene {ueberfaelligeZahlungen.length === 1 ? 'Zahlung' : 'Zahlungen'}</b> überfällig
-      {ueberfaelligeZahlungen[0]?.fields.rechnungsnummer ? ` — Rechnung ${ueberfaelligeZahlungen[0].fields.rechnungsnummer}` : ''}.
+      <b>{ueberfaelligeZahlungen.length} {tt('offene')} {(ueberfaelligeZahlungen.length === 1 ? tt('zahlung') : tt('zahlungen'))}</b> {tt('ueberfaellig')}
+      {(ueberfaelligeZahlungen[0]?.fields.rechnungsnummer ? tt('rechnung', { p0: ueberfaelligeZahlungen[0].fields.rechnungsnummer }) : "")}.
       {ueberfaelligeZahlungen.length > 1 && ` +${ueberfaelligeZahlungen.length - 1} weitere.`}
     </HeroBanner>
   ) : undefined;
@@ -293,7 +378,7 @@ export default function DashboardOverview() {
             }}
           >
             <IconPlus size={16} className="shrink-0 mr-1" />
-            Neuer Kurs
+            {tt('neuer_kurs')}
           </Button>
         </div>
       </div>
@@ -304,25 +389,25 @@ export default function DashboardOverview() {
         kpis={
           <StatStrip>
             <StatStripItem
-              title="Aktive Kurse"
+              title={tt('aktive_kurse')}
               value={aktiveKurse.length}
               icon={<IconCalendar size={16} />}
               tone={aktiveKurse.length > 0 ? 'success' : 'default'}
             />
             <StatStripItem
-              title="Neue Anmeldungen"
+              title={tt('neue_anmeldungen')}
               value={neueAnmeldungen.length}
               icon={<IconUsers size={16} />}
               tone={neueAnmeldungen.length > 0 ? 'primary' : 'default'}
             />
             <StatStripItem
-              title="Warteliste"
+              title={tt('warteliste')}
               value={wartelisteAnmeldungen.length}
               icon={<IconUsers size={16} />}
               tone={wartelisteAnmeldungen.length > 0 ? 'warning' : 'default'}
             />
             <StatStripItem
-              title="Offene Zahlungen"
+              title={tt('offene_zahlungen')}
               value={offeneZahlungen.length}
               icon={<IconCurrencyEuro size={16} />}
               tone={offeneZahlungen.length > 0 ? 'destructive' : 'default'}
@@ -359,30 +444,30 @@ export default function DashboardOverview() {
         aside={
           <>
             <WorkList
-              title="Neue Anmeldungen"
+              title={tt('neue_anmeldungen')}
               items={enrichedAnmeldungen
                 .filter(a => lookupKey(a.fields.status_anmeldung) === 'angemeldet')
                 .sort((a, b) => (b.fields.anmeldedatum ?? '').localeCompare(a.fields.anmeldedatum ?? ''))
                 .slice(0, 6)
                 .map(a => ({
                   id: a.record_id,
-                  title: a.teilnehmerName || 'Unbekannt',
+                  title: a.teilnehmerName || tt('unbekannt'),
                   secondLine: (
                     <>
-                      <span className="font-medium text-primary">Angemeldet</span>
+                      <span className="font-medium text-primary">{tt('angemeldet')}</span>
                       <span className="text-muted-foreground"> · {a.kursName || '—'}</span>
                     </>
                   ),
                   action: {
-                    label: '✓ Abschließen',
+                    label: tt('abschliessen'),
                     onClick: () => advanceAnmeldung(a),
                   },
                 }))}
               onItemClick={id => overlay.replace({ type: 'anmeldung', id })}
               empty={{
-                text: 'Keine neuen Anmeldungen',
+                text: tt('keine_neuen_anmeldungen'),
                 action: {
-                  label: 'Anmeldung erfassen',
+                  label: tt('anmeldung_erfassen'),
                   onClick: () => {
                     setEditingAnmeldung(null);
                     setAnmeldungDefaults(undefined);
@@ -392,7 +477,7 @@ export default function DashboardOverview() {
               }}
             />
             <WorkList
-              title="Offene Zahlungen"
+              title={tt('offene_zahlungen')}
               items={offeneZahlungen
                 .sort((a, b) => (a.fields.zahlungsdatum ?? '').localeCompare(b.fields.zahlungsdatum ?? ''))
                 .slice(0, 6)
@@ -400,29 +485,29 @@ export default function DashboardOverview() {
                   const isUeberfaellig = ueberfaelligeZahlungen.some(u => u.record_id === z.record_id);
                   return {
                     id: z.record_id,
-                    title: z.fields.rechnungsnummer ?? 'Ohne Nummer',
+                    title: z.fields.rechnungsnummer ?? tt('ohne_nummer'),
                     secondLine: (
                       <>
                         <span className={isUeberfaellig ? 'font-medium text-destructive' : 'font-medium text-warning'}>
-                          {isUeberfaellig ? 'Überfällig' : 'Offen'}
+                          {(isUeberfaellig ? tt('ueberfaellig_2') : tt('offen'))}
                         </span>
                         <span className="text-muted-foreground">
                           {' · '}{z.fields.betrag != null ? formatCurrency(z.fields.betrag) : '—'}
-                          {z.fields.zahlungsdatum ? ` · Fällig: ${formatDate(z.fields.zahlungsdatum)}` : ''}
+                          {(z.fields.zahlungsdatum ? tt('faellig', { p0: formatDate(z.fields.zahlungsdatum) }) : "")}
                         </span>
                       </>
                     ),
                     action: {
-                      label: '✓ Bezahlt',
+                      label: tt('bezahlt_2'),
                       onClick: () => markBezahlt(z),
                     },
                   };
                 })}
               onItemClick={id => overlay.replace({ type: 'zahlung', id })}
               empty={{
-                text: 'Alle Zahlungen beglichen',
+                text: tt('alle_zahlungen_beglichen'),
                 action: {
-                  label: 'Zahlung erfassen',
+                  label: tt('zahlung_erfassen'),
                   onClick: () => {
                     setEditingZahlung(null);
                     setZahlungDefaults(undefined);
@@ -445,7 +530,7 @@ export default function DashboardOverview() {
             return (
               <>
                 <RecordHeader
-                  title={kurs.fields.titel ?? 'Kurs'}
+                  title={kurs.fields.titel ?? tt('kurs')}
                   subtitle={kurs.dozentName || undefined}
                   meta={<>{formatDate(kurs.fields.startdatum)}{kurs.fields.enddatum ? ` – ${formatDate(kurs.fields.enddatum)}` : ''}</>}
                   badges={<span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">{kurs.fields.status_kurs?.label ?? '—'}</span>}
@@ -474,7 +559,7 @@ export default function DashboardOverview() {
             return (
               <>
                 <RecordHeader
-                  title={enriched?.teilnehmerName ?? 'Anmeldung'}
+                  title={enriched?.teilnehmerName ?? tt('anmeldung')}
                   subtitle={enriched?.kursName || undefined}
                   meta={formatDate(anm.fields.anmeldedatum)}
                   badges={<span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">{anm.fields.status_anmeldung?.label ?? '—'}</span>}
@@ -502,7 +587,7 @@ export default function DashboardOverview() {
             return (
               <>
                 <RecordHeader
-                  title={z.fields.rechnungsnummer ?? 'Zahlung'}
+                  title={z.fields.rechnungsnummer ?? tt('zahlung')}
                   subtitle={z.fields.betrag != null ? formatCurrency(z.fields.betrag) : undefined}
                   meta={formatDate(z.fields.zahlungsdatum)}
                   badges={<span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">{z.fields.zahlungsstatus?.label ?? '—'}</span>}
@@ -521,7 +606,7 @@ export default function DashboardOverview() {
             return (
               <>
                 <RecordHeader
-                  title={[d.fields.vorname, d.fields.nachname].filter(Boolean).join(' ') || 'Dozent'}
+                  title={[d.fields.vorname, d.fields.nachname].filter(Boolean).join(' ') || tt('dozent')}
                   subtitle={d.fields.beschaeftigungsart?.label}
                 />
                 <DozentenDetails
@@ -543,7 +628,7 @@ export default function DashboardOverview() {
             return (
               <>
                 <RecordHeader
-                  title={r.fields.raumname ?? 'Raum'}
+                  title={r.fields.raumname ?? tt('raum')}
                   subtitle={r.fields.etage}
                 />
                 <RaeumeDetails
@@ -565,7 +650,7 @@ export default function DashboardOverview() {
             return (
               <>
                 <RecordHeader
-                  title={[t.fields.vorname, t.fields.nachname].filter(Boolean).join(' ') || 'Teilnehmer'}
+                  title={[t.fields.vorname, t.fields.nachname].filter(Boolean).join(' ') || tt('teilnehmer')}
                   subtitle={t.fields.email}
                 />
                 <TeilnehmerDetails
@@ -615,7 +700,7 @@ export default function DashboardOverview() {
             const status = lookupKey(a?.fields.status_anmeldung);
             if (a && status === 'angemeldet') {
               return {
-                label: 'Abschließen',
+                label: tt('abschliessen_2'),
                 onClick: () => { advanceAnmeldung(a); overlay.close(); },
               };
             }
@@ -625,7 +710,7 @@ export default function DashboardOverview() {
             const status = lookupKey(z?.fields.zahlungsstatus);
             if (z && status === 'offen') {
               return {
-                label: 'Als bezahlt markieren',
+                label: tt('als_bezahlt_markieren'),
                 onClick: () => { markBezahlt(z); overlay.close(); },
               };
             }

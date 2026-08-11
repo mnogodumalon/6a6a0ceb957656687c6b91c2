@@ -27,6 +27,7 @@ import type { ComputedContext } from '@/config/form-enhancements/types';
 import { applyFieldOrder, flattenFieldOrder, applyDefaults, evalComputed, numberInputProps, clampNumberValue, classifyComputed, extractApplookupRefs, mergeApplookupRefs, resolveApplookupRef } from '@/config/form-enhancements/types';
 import { formEnhancements, computedDeps, computedApplookupRefs } from '@/config/form-enhancements/Dozenten';
 import { AttachmentsSection } from '@/components/AttachmentsSection';
+import { t, appLabel, fieldLabel, lookupLabel, localeTag, CURRENCY } from '@/i18n';
 import { Textarea } from '@/components/ui/textarea';
 import { DatePicker } from '@/components/DatePicker';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -201,7 +202,7 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
       await onSubmit(clean as Dozenten['fields']);
       onClose();
     } catch (err) {
-      setSubmitError(err instanceof Error && err.message ? err.message : 'Speichern fehlgeschlagen.');
+      setSubmitError(err instanceof Error && err.message ? err.message : t('submit_error'));
     } finally {
       setSaving(false);
     }
@@ -265,7 +266,7 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
       setScanSuccess(true);
       setTimeout(() => setScanSuccess(false), 3000);
     } catch (err) {
-      console.error('Scan fehlgeschlagen:', err);
+      console.error(`${t('scan_error')}:`, err);
       alert(err instanceof Error ? err.message : String(err));
     } finally {
       setScanning(false);
@@ -300,57 +301,59 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
     }
   }, []);
 
-  const DIALOG_INTENT = defaultValues ? 'Dozenten bearbeiten' : 'Dozenten hinzufügen';
+  const DIALOG_INTENT = defaultValues
+    ? t('edit_entity', { entity: appLabel('dozenten') })
+    : t('new_entity', { entity: appLabel('dozenten') });
 
   const fieldBlocks: Record<string, React.ReactNode> = {
     'vorname': (
       <div key="vorname" className="space-y-1.5">
-        <Label htmlFor="vorname">Vorname <span className="text-destructive" aria-hidden="true">*</span></Label>
+        <Label htmlFor="vorname">{fieldLabel('dozenten', 'vorname')} <span className="text-destructive" aria-hidden="true">*</span></Label>
         <Input
           id="vorname"
-          placeholder="z. B. Anna"
+          placeholder=""
           value={fields.vorname ?? ''}
           onChange={e => setFields(f => ({ ...f, vorname: e.target.value }))}
           required
         />
         {showErrors && !fields.vorname && (
-          <p className="text-xs text-destructive mt-1">Pflichtfeld</p>
+          <p className="text-xs text-destructive mt-1">{t('required_hint')}</p>
         )}
       </div>
     ),
     'nachname': (
       <div key="nachname" className="space-y-1.5">
-        <Label htmlFor="nachname">Nachname <span className="text-destructive" aria-hidden="true">*</span></Label>
+        <Label htmlFor="nachname">{fieldLabel('dozenten', 'nachname')} <span className="text-destructive" aria-hidden="true">*</span></Label>
         <Input
           id="nachname"
-          placeholder="z. B. Schmidt"
+          placeholder=""
           value={fields.nachname ?? ''}
           onChange={e => setFields(f => ({ ...f, nachname: e.target.value }))}
           required
         />
         {showErrors && !fields.nachname && (
-          <p className="text-xs text-destructive mt-1">Pflichtfeld</p>
+          <p className="text-xs text-destructive mt-1">{t('required_hint')}</p>
         )}
       </div>
     ),
     'email': (
       <div key="email" className="space-y-1.5">
-        <Label htmlFor="email">E-Mail-Adresse <span className="text-destructive" aria-hidden="true">*</span></Label>
+        <Label htmlFor="email">{fieldLabel('dozenten', 'email')} <span className="text-destructive" aria-hidden="true">*</span></Label>
         <Input
           id="email"
           type="email"
-          placeholder="z. B. anna@musikschule.de"
+          placeholder=""
           value={fields.email ?? ''}
           onChange={e => setFields(f => ({ ...f, email: e.target.value }))}
         />
         {showErrors && !fields.email && (
-          <p className="text-xs text-destructive mt-1">Pflichtfeld</p>
+          <p className="text-xs text-destructive mt-1">{t('required_hint')}</p>
         )}
       </div>
     ),
     'telefon': (
       <div key="telefon" className="space-y-1.5">
-        <Label htmlFor="telefon">Telefonnummer</Label>
+        <Label htmlFor="telefon">{fieldLabel('dozenten', 'telefon')}</Label>
         <Input
           id="telefon"
           value={fields.telefon ?? ''}
@@ -360,7 +363,7 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
     ),
     'fachbereiche': (
       <div key="fachbereiche" className="space-y-1.5">
-        <Label htmlFor="fachbereiche">Fachbereiche / Instrumente</Label>
+        <Label htmlFor="fachbereiche">{fieldLabel('dozenten', 'fachbereiche')}</Label>
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Checkbox
@@ -374,7 +377,7 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
                 });
               }}
             />
-            <Label htmlFor="fachbereiche_klavier" className="font-normal">Klavier</Label>
+            <Label htmlFor="fachbereiche_klavier" className="font-normal">{lookupLabel('dozenten', 'fachbereiche', 'klavier') ?? 'Klavier'}</Label>
           </div>
           <div className="flex items-center gap-2">
             <Checkbox
@@ -388,7 +391,7 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
                 });
               }}
             />
-            <Label htmlFor="fachbereiche_gitarre" className="font-normal">Gitarre</Label>
+            <Label htmlFor="fachbereiche_gitarre" className="font-normal">{lookupLabel('dozenten', 'fachbereiche', 'gitarre') ?? 'Gitarre'}</Label>
           </div>
           <div className="flex items-center gap-2">
             <Checkbox
@@ -402,7 +405,7 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
                 });
               }}
             />
-            <Label htmlFor="fachbereiche_schlagzeug" className="font-normal">Schlagzeug</Label>
+            <Label htmlFor="fachbereiche_schlagzeug" className="font-normal">{lookupLabel('dozenten', 'fachbereiche', 'schlagzeug') ?? 'Schlagzeug'}</Label>
           </div>
           <div className="flex items-center gap-2">
             <Checkbox
@@ -416,7 +419,7 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
                 });
               }}
             />
-            <Label htmlFor="fachbereiche_violine" className="font-normal">Violine</Label>
+            <Label htmlFor="fachbereiche_violine" className="font-normal">{lookupLabel('dozenten', 'fachbereiche', 'violine') ?? 'Violine'}</Label>
           </div>
           <div className="flex items-center gap-2">
             <Checkbox
@@ -430,7 +433,7 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
                 });
               }}
             />
-            <Label htmlFor="fachbereiche_cello" className="font-normal">Cello</Label>
+            <Label htmlFor="fachbereiche_cello" className="font-normal">{lookupLabel('dozenten', 'fachbereiche', 'cello') ?? 'Cello'}</Label>
           </div>
           <div className="flex items-center gap-2">
             <Checkbox
@@ -444,7 +447,7 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
                 });
               }}
             />
-            <Label htmlFor="fachbereiche_querfloete" className="font-normal">Querflöte</Label>
+            <Label htmlFor="fachbereiche_querfloete" className="font-normal">{lookupLabel('dozenten', 'fachbereiche', 'querfloete') ?? 'Querflöte'}</Label>
           </div>
           <div className="flex items-center gap-2">
             <Checkbox
@@ -458,7 +461,7 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
                 });
               }}
             />
-            <Label htmlFor="fachbereiche_saxophon" className="font-normal">Saxophon</Label>
+            <Label htmlFor="fachbereiche_saxophon" className="font-normal">{lookupLabel('dozenten', 'fachbereiche', 'saxophon') ?? 'Saxophon'}</Label>
           </div>
           <div className="flex items-center gap-2">
             <Checkbox
@@ -472,7 +475,7 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
                 });
               }}
             />
-            <Label htmlFor="fachbereiche_trompete" className="font-normal">Trompete</Label>
+            <Label htmlFor="fachbereiche_trompete" className="font-normal">{lookupLabel('dozenten', 'fachbereiche', 'trompete') ?? 'Trompete'}</Label>
           </div>
           <div className="flex items-center gap-2">
             <Checkbox
@@ -486,7 +489,7 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
                 });
               }}
             />
-            <Label htmlFor="fachbereiche_gesang" className="font-normal">Gesang</Label>
+            <Label htmlFor="fachbereiche_gesang" className="font-normal">{lookupLabel('dozenten', 'fachbereiche', 'gesang') ?? 'Gesang'}</Label>
           </div>
           <div className="flex items-center gap-2">
             <Checkbox
@@ -500,7 +503,7 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
                 });
               }}
             />
-            <Label htmlFor="fachbereiche_musiktheorie" className="font-normal">Musiktheorie</Label>
+            <Label htmlFor="fachbereiche_musiktheorie" className="font-normal">{lookupLabel('dozenten', 'fachbereiche', 'musiktheorie') ?? 'Musiktheorie'}</Label>
           </div>
           <div className="flex items-center gap-2">
             <Checkbox
@@ -514,7 +517,7 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
                 });
               }}
             />
-            <Label htmlFor="fachbereiche_komposition" className="font-normal">Komposition</Label>
+            <Label htmlFor="fachbereiche_komposition" className="font-normal">{lookupLabel('dozenten', 'fachbereiche', 'komposition') ?? 'Komposition'}</Label>
           </div>
           <div className="flex items-center gap-2">
             <Checkbox
@@ -528,17 +531,17 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
                 });
               }}
             />
-            <Label htmlFor="fachbereiche_sonstiges" className="font-normal">Sonstiges</Label>
+            <Label htmlFor="fachbereiche_sonstiges" className="font-normal">{lookupLabel('dozenten', 'fachbereiche', 'sonstiges') ?? 'Sonstiges'}</Label>
           </div>
         </div>
       </div>
     ),
     'qualifikationen': (
       <div key="qualifikationen" className="space-y-1.5">
-        <Label htmlFor="qualifikationen">Qualifikationen</Label>
+        <Label htmlFor="qualifikationen">{fieldLabel('dozenten', 'qualifikationen')}</Label>
         <Textarea
           id="qualifikationen"
-          placeholder="Ausbildung, Zertifikate, Spezialisierung..."
+          placeholder=""
           value={fields.qualifikationen ?? ''}
           onChange={e => setFields(f => ({ ...f, qualifikationen: e.target.value }))}
           rows={3}
@@ -547,7 +550,7 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
     ),
     'beschaeftigungsart': (
       <div key="beschaeftigungsart" className="space-y-1.5">
-        <Label htmlFor="beschaeftigungsart">Beschäftigungsart <span className="text-destructive" aria-hidden="true">*</span></Label>
+        <Label htmlFor="beschaeftigungsart">{fieldLabel('dozenten', 'beschaeftigungsart')} <span className="text-destructive" aria-hidden="true">*</span></Label>
         <div role="radiogroup" className="flex flex-wrap gap-1.5">
           <button
             type="button"
@@ -560,7 +563,7 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
                 : 'bg-background text-foreground border-input hover:bg-accent'
             }`}
           >
-            Festangestellt
+            {lookupLabel('dozenten', 'beschaeftigungsart', 'festangestellt') ?? 'Festangestellt'}
           </button>
           <button
             type="button"
@@ -573,7 +576,7 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
                 : 'bg-background text-foreground border-input hover:bg-accent'
             }`}
           >
-            Honorarbasis
+            {lookupLabel('dozenten', 'beschaeftigungsart', 'honorar') ?? 'Honorarbasis'}
           </button>
           <button
             type="button"
@@ -586,20 +589,20 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
                 : 'bg-background text-foreground border-input hover:bg-accent'
             }`}
           >
-            Ehrenamtlich
+            {lookupLabel('dozenten', 'beschaeftigungsart', 'ehrenamtlich') ?? 'Ehrenamtlich'}
           </button>
         </div>
         {showErrors && !fields.beschaeftigungsart && (
-          <p className="text-xs text-destructive mt-1">Pflichtfeld</p>
+          <p className="text-xs text-destructive mt-1">{t('required_hint')}</p>
         )}
       </div>
     ),
     'eintrittsdatum': (
       <div key="eintrittsdatum" className="space-y-1.5">
-        <Label htmlFor="eintrittsdatum">Eintrittsdatum</Label>
+        <Label htmlFor="eintrittsdatum">{fieldLabel('dozenten', 'eintrittsdatum')}</Label>
         <DatePicker
           id="eintrittsdatum"
-          placeholder="Wann tritt der Dozent ein?"
+          placeholder=""
           mode="date"
           value={fields.eintrittsdatum ?? null}
           onChange={v => setFields(f => ({ ...f, eintrittsdatum: v ?? undefined }))}
@@ -608,10 +611,10 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
     ),
     'bemerkungen_dozent': (
       <div key="bemerkungen_dozent" className="space-y-1.5">
-        <Label htmlFor="bemerkungen_dozent">Bemerkungen</Label>
+        <Label htmlFor="bemerkungen_dozent">{fieldLabel('dozenten', 'bemerkungen_dozent')}</Label>
         <Textarea
           id="bemerkungen_dozent"
-          placeholder="Verfügbarkeit, Besonderheiten, Absprachen..."
+          placeholder=""
           value={fields.bemerkungen_dozent ?? ''}
           onChange={e => setFields(f => ({ ...f, bemerkungen_dozent: e.target.value }))}
           rows={3}
@@ -687,9 +690,9 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
     // Backend-Feld mit €-Label ODER virtueller Computed-Key, dessen Name nach Geld aussieht.
     const looksLikeCurrency = CURRENCY_KEYS.has(k) || /(?:kosten|preis|betrag|gesamt|netto|brutto|summe|mwst|rabatt|anzahlung|umsatz|saldo)/i.test(k);
     if (looksLikeCurrency) {
-      return n.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      return n.toLocaleString(localeTag(), { style: 'currency', currency: CURRENCY, minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
-    return n.toLocaleString('de-DE', { maximumFractionDigits: 2 });
+    return n.toLocaleString(localeTag(), { maximumFractionDigits: 2 });
   }
 
   return (
@@ -711,14 +714,14 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
               }`}
             >
               <IconSparkles className={`h-3.5 w-3.5 ${aiOpen ? '' : 'text-primary'}`} />
-              <span className="hidden sm:inline">KI-Ausfüllen</span>
+              <span className="hidden sm:inline">{t('smart_fill')}</span>
               <IconChevronDown className={`h-3 w-3 transition-transform ${aiOpen ? 'rotate-180' : ''}`} />
             </button>
           )}
         </DialogHeader>
         {enablePhotoScan && aiOpen && (
           <div id="ai-fill-panel" className="border-b bg-muted/20 px-6 py-4 space-y-3">
-            <p className="text-xs text-muted-foreground">Versteht Fotos, Dokumente und Text und füllt alles für dich aus</p>
+            <p className="text-xs text-muted-foreground">{t('scan_header_sub')}</p>
             <div className="flex items-start gap-2 pl-0.5">
               <Checkbox
                 id="ai-use-personal-info"
@@ -728,21 +731,21 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
               />
               <span className="text-xs text-muted-foreground leading-snug">
                 <Label htmlFor="ai-use-personal-info" className="text-xs font-normal text-muted-foreground cursor-pointer inline">
-                  KI-Assistent darf zusätzlich Informationen zu meiner Person verwenden
+                  {t('useinfo_label')}
                 </Label>
                 {' '}
                 <button type="button" onClick={handleShowProfileInfo} className="text-xs text-primary hover:underline whitespace-nowrap">
-                  {profileLoading ? 'Lade...' : '(mehr Infos)'}
+                  {profileLoading ? t('useinfo_loading') : `(${t('useinfo_more')})`}
                 </button>
               </span>
             </div>
             {showProfileInfo && (
               <div className="rounded-md border bg-muted/50 p-2 text-xs max-h-40 overflow-y-auto">
-                <p className="font-medium mb-1">Folgende Infos über dich können von der KI genutzt werden:</p>
+                <p className="font-medium mb-1">{t('profile_preamble')}</p>
                 {profileData ? Object.values(profileData).map((v, i) => (
                   <span key={i}>{i > 0 && ", "}{typeof v === "object" ? JSON.stringify(v) : String(v)}</span>
                 )) : (
-                  <span className="text-muted-foreground">Profil konnte nicht geladen werden</span>
+                  <span className="text-muted-foreground">{t('useinfo_error')}</span>
                 )}
               </div>
             )}
@@ -773,8 +776,8 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
                     <IconLoader2 className="h-7 w-7 text-primary animate-spin" />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-medium">KI analysiert...</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">Felder werden automatisch ausgefüllt</p>
+                    <p className="text-sm font-medium">{t('scan_analyzing')}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{t('scan_analyzing_sub')}</p>
                   </div>
                 </div>
               ) : scanSuccess ? (
@@ -783,8 +786,8 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
                     <IconCircleCheck className="h-7 w-7 text-green-600 dark:text-green-400" />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-medium text-green-700 dark:text-green-400">Felder ausgefüllt!</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">Prüfe die Werte und passe sie ggf. an</p>
+                    <p className="text-sm font-medium text-green-700 dark:text-green-400">{t('scan_success')}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{t('scan_success_sub')}</p>
                   </div>
                 </div>
               ) : (
@@ -793,7 +796,7 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
                     <IconPhotoPlus className="h-7 w-7 text-primary/70" />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-medium">Foto oder Dokument hierher ziehen oder auswählen</p>
+                    <p className="text-sm font-medium">{t('scan_upload')}</p>
                   </div>
                 </div>
               )}
@@ -817,11 +820,11 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
             <div className="grid grid-cols-3 gap-2">
               <Button type="button" variant="outline" size="sm" className="h-10 text-xs" disabled={scanning}
                 onClick={e => { e.stopPropagation(); cameraInputRef.current?.click(); }}>
-                <IconCamera className="h-3.5 w-3.5 mr-1" />Kamera
+                <IconCamera className="h-3.5 w-3.5 mr-1" />{t('scan_camera_btn')}
               </Button>
               <Button type="button" variant="outline" size="sm" className="h-10 text-xs" disabled={scanning}
                 onClick={e => { e.stopPropagation(); fileInputRef.current?.click(); }}>
-                <IconUpload className="h-3.5 w-3.5 mr-1" />Foto wählen
+                <IconUpload className="h-3.5 w-3.5 mr-1" />{t('scan_file_btn')}
               </Button>
               <Button type="button" variant="outline" size="sm" className="h-10 text-xs" disabled={scanning}
                 onClick={e => {
@@ -832,13 +835,13 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
                     setTimeout(() => { if (fileInputRef.current) fileInputRef.current.accept = 'image/*,application/pdf'; }, 100);
                   }
                 }}>
-                <IconFileText className="h-3.5 w-3.5 mr-1" />Dokument
+                <IconFileText className="h-3.5 w-3.5 mr-1" />{t('scan_doc_btn')}
               </Button>
             </div>
 
             <div className="relative">
               <Textarea
-                placeholder="Text eingeben oder einfügen, z.B. Notizen, E-Mails, Beschreibungen..."
+                placeholder={t('scan_text_placeholder')}
                 value={aiText}
                 onChange={e => {
                   setAiText(e.target.value);
@@ -866,7 +869,7 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
                     if (text) setAiText(prev => prev ? prev + '\n' + text : text);
                   } catch {}
                 }}
-                title="Paste"
+                title={t('paste')}
               >
                 <IconClipboard className="h-4 w-4" />
               </button>
@@ -880,7 +883,7 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
                 disabled={scanning}
                 onClick={() => handleAiExtract()}
               >
-                <IconSparkles className="h-3.5 w-3.5 mr-1.5" />Analysieren
+                <IconSparkles className="h-3.5 w-3.5 mr-1.5" />{t('scan_text_analyze')}
               </Button>
             )}
           </div>
@@ -975,7 +978,7 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
             {showErrors && missingRequired.length > 0 && (
               <p className="text-xs text-destructive flex items-center gap-1.5" role="alert">
                 <IconAlertCircle className="h-3.5 w-3.5 shrink-0" />
-                Bitte fülle die markierten Pflichtfelder aus.
+                {t('missing_required')}
               </p>
             )}
             {recordId && (
@@ -991,13 +994,13 @@ export function DozentenDialog({ open, onClose, onSubmit, defaultValues, recordI
             </div>
           )}
           <DialogFooter className="sticky bottom-0 border-t bg-background/95 backdrop-blur px-6 py-3 gap-2 max-sm:flex-row">
-            <Button type="button" variant="outline" onClick={onClose} className="max-sm:h-12 max-sm:flex-1 max-sm:text-base">Abbrechen</Button>
+            <Button type="button" variant="outline" onClick={onClose} className="max-sm:h-12 max-sm:flex-1 max-sm:text-base">{t('cancel')}</Button>
             <Button
               type="submit"
               className="max-sm:h-12 max-sm:flex-1 max-sm:text-base"
               disabled={saving || !isDirty || (showErrors && missingRequired.length > 0)}
             >
-              {saving ? 'Speichern...' : defaultValues ? 'Speichern' : 'Erstellen'}
+              {saving ? t('saving') : defaultValues ? t('save') : t('create')}
             </Button>
           </DialogFooter>
         </form>

@@ -4,6 +4,7 @@ import { extractRecordId } from '@/services/livingAppsService';
 import {
   RecordSection, RecordField, RecordRelation, RecordAttachments,
 } from '@/components/widgets/RecordView';
+import { t, appLabel, fieldLabel } from '@/i18n';
 import { SatelliteSection } from '@/components/SatelliteSection';
 
 export interface AnmeldungenDetailsProps {
@@ -39,22 +40,22 @@ export function AnmeldungenDetails({
   const kursTarget = kurseWorkshopsList.find(r => r.record_id === extractRecordId(record.fields.kurs));
   return (
     <>
-      <RecordSection title="Details" cols={2}>
-        <RecordField label="Anmeldedatum" value={record.fields.anmeldedatum} format="date" />
-        <RecordField label="Anmeldestatus" value={record.fields.status_anmeldung} format="pill" />
-        <RecordField label="Bemerkungen" value={record.fields.bemerkungen_anmeldung} format="longtext" className="md:col-span-2" />
+      <RecordSection title={t('details')} cols={2}>
+        <RecordField label={fieldLabel('anmeldungen', 'anmeldedatum')} value={record.fields.anmeldedatum} format="date" />
+        <RecordField label={fieldLabel('anmeldungen', 'status_anmeldung')} value={record.fields.status_anmeldung} format="pill" />
+        <RecordField label={fieldLabel('anmeldungen', 'bemerkungen_anmeldung')} value={record.fields.bemerkungen_anmeldung} format="longtext" className="md:col-span-2" />
       </RecordSection>
 
       {/* N:1 — verknüpfte Records: IMMER klickbar, nie eine Text-Sackgasse. */}
-      <RecordSection title="Verknüpft" cols={2}>
+      <RecordSection title={t('relations')} cols={2}>
         <RecordRelation
-          label="Teilnehmer"
+          label={fieldLabel('anmeldungen', 'teilnehmer')}
           name={teilnehmerTarget?.fields.vorname ?? '—'}
           meta={[teilnehmerTarget?.fields.email, teilnehmerTarget?.fields.telefon].filter(Boolean).join(' · ') || undefined}
           onClick={teilnehmerTarget && onOpenTeilnehmer ? () => onOpenTeilnehmer!(teilnehmerTarget!) : undefined}
         />
         <RecordRelation
-          label="Kurs / Workshop"
+          label={fieldLabel('anmeldungen', 'kurs')}
           name={kursTarget?.fields.titel ?? '—'}
           meta={[kursTarget?.fields.wochentag_uhrzeit].filter(Boolean).join(' · ') || undefined}
           onClick={kursTarget && onOpenKurseWorkshops ? () => onOpenKurseWorkshops!(kursTarget!) : undefined}
@@ -62,9 +63,9 @@ export function AnmeldungenDetails({
       </RecordSection>
 
       <SatelliteSection
-        title="Zahlungen"
+        title={appLabel('zahlungen')}
         items={zahlungenList.filter(r => extractRecordId(r.fields.anmeldung) === record.record_id)}
-        map={r => ({ name: r.fields.rechnungsnummer ?? 'Zahlungen', meta: r.fields.zahlungsdatum })}
+        map={r => ({ name: r.fields.rechnungsnummer ?? appLabel('zahlungen'), meta: r.fields.zahlungsdatum })}
         onOpen={onOpenZahlungen}
         onAdd={onAddZahlungen}
         getKey={r => r.record_id}

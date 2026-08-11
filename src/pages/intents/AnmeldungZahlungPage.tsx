@@ -35,20 +35,145 @@ import {
   IconRefresh,
 } from '@tabler/icons-react';
 
-const TODAY = format(new Date(), 'yyyy-MM-dd');
+import { makeT } from '@/i18n';
 
-const WIZARD_STEPS = [
-  { label: 'Teilnehmer' },
-  { label: 'Kurs' },
-  { label: 'Anmeldung' },
-  { label: 'Zahlung' },
-];
+const tt = makeT({
+  de: {
+    teilnehmer: 'Teilnehmer',
+    kurs: 'Kurs',
+    anmeldung: 'Anmeldung',
+    zahlung: 'Zahlung',
+    vorname_und_nachname_sind_pflich: 'Vorname und Nachname sind Pflichtfelder.',
+    anmeldung_zahlung: 'Anmeldung & Zahlung',
+    teilnehmer_anmelden_und_zahlung: 'Teilnehmer anmelden und Zahlung erfassen — in einem Schritt',
+    teilnehmer_auswaehlen: 'Teilnehmer auswählen',
+    waehle_einen_bestehenden_teilneh: 'Wähle einen bestehenden Teilnehmer oder lege einen neuen an.',
+    ort: 'Ort',
+    teilnehmer_suchen: 'Teilnehmer suchen...',
+    kein_teilnehmer_gefunden: 'Kein Teilnehmer gefunden.',
+    neuen_teilnehmer_anlegen: 'Neuen Teilnehmer anlegen',
+    vorname: 'Vorname *',
+    vorname_2: 'Vorname',
+    nachname: 'Nachname *',
+    nachname_2: 'Nachname',
+    e_mail: 'E-Mail',
+    email_beispiel_de: 'email@beispiel.de',
+    telefon: 'Telefon',
+    anlegen_auswaehlen: 'Anlegen & auswählen',
+    abbrechen: 'Abbrechen',
+    kurs_auswaehlen: 'Kurs auswählen',
+    waehle_den_kurs_fuer_den: 'Wähle den Kurs, für den',
+    angemeldet_werden_soll: 'angemeldet werden soll.',
+    teilnehmer_aendern: 'Teilnehmer ändern',
+    kein_titel: '(Kein Titel)',
+    plaetze: '{p0} Plätze',
+    preis: 'Preis',
+    niveau: 'Niveau',
+    kurs_suchen: 'Kurs suchen...',
+    keine_aktiven_kurse_gefunden: 'Keine aktiven Kurse gefunden.',
+    anmeldung_bestaetigen: 'Anmeldung bestätigen',
+    pruefe_die_auswahl_und_ergaenze: 'Prüfe die Auswahl und ergänze die Anmeldedaten.',
+    zusammenfassung: 'Zusammenfassung',
+    anmeldedatum: 'Anmeldedatum',
+    status_der_anmeldung: 'Status der Anmeldung',
+    bemerkungen_optional: 'Bemerkungen (optional)',
+    bemerkungen_zur_anmeldung: 'Bemerkungen zur Anmeldung...',
+    anmeldung_speichern: 'Anmeldung speichern',
+    zurueck: 'Zurück',
+    zahlung_erfassen: 'Zahlung erfassen',
+    erfasse_die_zahlungsdaten_fuer_d: 'Erfasse die Zahlungsdaten für die soeben erstellte Anmeldung.',
+    ausstehend: '€ ausstehend',
+    rechnungsnummer: 'Rechnungsnummer',
+    z_b_re_2025_001: 'z. B. RE-2025-001',
+    betrag: 'Betrag (€)',
+    zahlungsdatum: 'Zahlungsdatum',
+    zahlungsart: 'Zahlungsart',
+    zahlungsstatus: 'Zahlungsstatus',
+    notizen_optional: 'Notizen (optional)',
+    zahlungshinweise_oder_notizen: 'Zahlungshinweise oder Notizen...',
+    anmeldung_zahlung_erfolgreich_ge: 'Anmeldung & Zahlung erfolgreich gespeichert!',
+    wurde_fuer: 'wurde für',
+    den_kurs: 'den Kurs',
+    angemeldet_und_die_zahlung_wurde: 'angemeldet und die Zahlung wurde erfasst.',
+    neue_anmeldung: 'Neue Anmeldung',
+    zurueck_zum_dashboard: 'Zurück zum Dashboard',
+  },
+  en: {
+    teilnehmer: 'Participants',
+    kurs: 'Course',
+    anmeldung: 'Registration',
+    zahlung: 'Payment',
+    vorname_und_nachname_sind_pflich: 'First name and last name are required fields.',
+    anmeldung_zahlung: 'Registration & Payment',
+    teilnehmer_anmelden_und_zahlung: 'Register participant and record payment — in one step',
+    teilnehmer_auswaehlen: 'Select participant',
+    waehle_einen_bestehenden_teilneh: 'Select an existing participant or create a new one.',
+    ort: 'Location',
+    teilnehmer_suchen: 'Search participant...',
+    kein_teilnehmer_gefunden: 'No participant found.',
+    neuen_teilnehmer_anlegen: 'Create new participant',
+    vorname: 'First name *',
+    vorname_2: 'First name',
+    nachname: 'Last name *',
+    nachname_2: 'Last name',
+    e_mail: 'Email',
+    email_beispiel_de: 'email@example.com',
+    telefon: 'Phone',
+    anlegen_auswaehlen: 'Create & select',
+    abbrechen: 'Cancel',
+    kurs_auswaehlen: 'Select course',
+    waehle_den_kurs_fuer_den: 'Select the course for which',
+    angemeldet_werden_soll: 'should be registered.',
+    teilnehmer_aendern: 'Change participant',
+    kein_titel: '(No title)',
+    plaetze: '{p0} spots',
+    preis: 'Price',
+    niveau: 'Level',
+    kurs_suchen: 'Search course...',
+    keine_aktiven_kurse_gefunden: 'No active courses found.',
+    anmeldung_bestaetigen: 'Confirm registration',
+    pruefe_die_auswahl_und_ergaenze: 'Review the selection and complete the registration details.',
+    zusammenfassung: 'Summary',
+    anmeldedatum: 'Registration date',
+    status_der_anmeldung: 'Registration status',
+    bemerkungen_optional: 'Notes (optional)',
+    bemerkungen_zur_anmeldung: 'Notes on registration...',
+    anmeldung_speichern: 'Save registration',
+    zurueck: 'Back',
+    zahlung_erfassen: 'Add Payment',
+    erfasse_die_zahlungsdaten_fuer_d: 'Enter the payment details for the registration just created.',
+    ausstehend: '€ outstanding',
+    rechnungsnummer: 'Invoice number',
+    z_b_re_2025_001: 'e.g. INV-2025-001',
+    betrag: 'Amount (€)',
+    zahlungsdatum: 'Payment Date',
+    zahlungsart: 'Payment Method',
+    zahlungsstatus: 'Payment Status',
+    notizen_optional: 'Notes (optional)',
+    zahlungshinweise_oder_notizen: 'Payment instructions or notes...',
+    anmeldung_zahlung_erfolgreich_ge: 'Registration & Payment successfully saved!',
+    wurde_fuer: 'was registered for',
+    den_kurs: 'the course',
+    angemeldet_und_die_zahlung_wurde: 'and the payment has been recorded.',
+    neue_anmeldung: 'New Registration',
+    zurueck_zum_dashboard: 'Back to Dashboard',
+  },
+});
+
+const TODAY = format(new Date(), 'yyyy-MM-dd');
 
 const STATUS_ANMELDUNG_OPTIONS = LOOKUP_OPTIONS['anmeldungen']?.['status_anmeldung'] ?? [];
 const ZAHLUNGSART_OPTIONS = LOOKUP_OPTIONS['zahlungen']?.['zahlungsart'] ?? [];
 const ZAHLUNGSSTATUS_OPTIONS = LOOKUP_OPTIONS['zahlungen']?.['zahlungsstatus'] ?? [];
 
 export default function AnmeldungZahlungPage() {
+  const WIZARD_STEPS = [
+  { label: tt('teilnehmer') },
+  { label: tt('kurs') },
+  { label: tt('anmeldung') },
+  { label: tt('zahlung') },
+];
+
   const [searchParams] = useSearchParams();
   const { teilnehmer, kurseWorkshops, loading, error, fetchAll } = useDashboardData();
 
@@ -143,7 +268,7 @@ export default function AnmeldungZahlungPage() {
 
   const handleCreateTeilnehmer = async () => {
     if (!newVorname.trim() || !newNachname.trim()) {
-      setCreateTeilnehmerError('Vorname und Nachname sind Pflichtfelder.');
+      setCreateTeilnehmerError(tt('vorname_und_nachname_sind_pflich'));
       return;
     }
     setCreateTeilnehmerLoading(true);
@@ -245,8 +370,8 @@ export default function AnmeldungZahlungPage() {
 
   return (
     <IntentWizardShell
-      title="Anmeldung & Zahlung"
-      subtitle="Teilnehmer anmelden und Zahlung erfassen — in einem Schritt"
+      title={tt('anmeldung_zahlung')}
+      subtitle={tt('teilnehmer_anmelden_und_zahlung')}
       steps={WIZARD_STEPS}
       currentStep={step}
       onStepChange={setStep}
@@ -258,9 +383,9 @@ export default function AnmeldungZahlungPage() {
       {step === 1 && (
         <div className="space-y-4">
           <div>
-            <h2 className="text-lg font-semibold">Teilnehmer auswählen</h2>
+            <h2 className="text-lg font-semibold">{tt('teilnehmer_auswaehlen')}</h2>
             <p className="text-sm text-muted-foreground mt-0.5">
-              Wähle einen bestehenden Teilnehmer oder lege einen neuen an.
+              {tt('waehle_einen_bestehenden_teilneh')}
             </p>
           </div>
           <EntitySelectStep
@@ -268,13 +393,13 @@ export default function AnmeldungZahlungPage() {
               id: t.record_id,
               title: `${t.fields.vorname ?? ''} ${t.fields.nachname ?? ''}`.trim(),
               subtitle: t.fields.email,
-              stats: t.fields.ort ? [{ label: 'Ort', value: t.fields.ort }] : undefined,
+              stats: t.fields.ort ? [{ label: tt('ort'), value: t.fields.ort }] : undefined,
               icon: <IconUser size={18} className="text-primary" />,
             }))}
             onSelect={handleSelectTeilnehmer}
-            searchPlaceholder="Teilnehmer suchen..."
-            emptyText="Kein Teilnehmer gefunden."
-            createLabel="Neuen Teilnehmer anlegen"
+            searchPlaceholder={tt('teilnehmer_suchen')}
+            emptyText={tt('kein_teilnehmer_gefunden')}
+            createLabel={tt('neuen_teilnehmer_anlegen')}
             onCreateNew={() => setShowCreateTeilnehmer(prev => !prev)}
             createDialog={
               showCreateTeilnehmer ? (
@@ -283,36 +408,36 @@ export default function AnmeldungZahlungPage() {
                     <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                       <IconUserPlus size={16} className="text-primary" />
                     </div>
-                    <p className="font-medium text-sm">Neuen Teilnehmer anlegen</p>
+                    <p className="font-medium text-sm">{tt('neuen_teilnehmer_anlegen')}</p>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <label className="text-xs font-medium text-muted-foreground">Vorname *</label>
+                      <label className="text-xs font-medium text-muted-foreground">{tt('vorname')}</label>
                       <Input
                         value={newVorname}
                         onChange={e => setNewVorname(e.target.value)}
-                        placeholder="Vorname"
+                        placeholder={tt('vorname_2')}
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-xs font-medium text-muted-foreground">Nachname *</label>
+                      <label className="text-xs font-medium text-muted-foreground">{tt('nachname')}</label>
                       <Input
                         value={newNachname}
                         onChange={e => setNewNachname(e.target.value)}
-                        placeholder="Nachname"
+                        placeholder={tt('nachname_2')}
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-xs font-medium text-muted-foreground">E-Mail</label>
+                      <label className="text-xs font-medium text-muted-foreground">{tt('e_mail')}</label>
                       <Input
                         type="email"
                         value={newEmail}
                         onChange={e => setNewEmail(e.target.value)}
-                        placeholder="email@beispiel.de"
+                        placeholder={tt('email_beispiel_de')}
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-xs font-medium text-muted-foreground">Telefon</label>
+                      <label className="text-xs font-medium text-muted-foreground">{tt('telefon')}</label>
                       <Input
                         type="tel"
                         value={newTelefon}
@@ -336,7 +461,7 @@ export default function AnmeldungZahlungPage() {
                       ) : (
                         <IconCheck size={14} />
                       )}
-                      Anlegen & auswählen
+                      {tt('anlegen_auswaehlen')}
                     </Button>
                     <Button
                       variant="ghost"
@@ -346,7 +471,7 @@ export default function AnmeldungZahlungPage() {
                         setCreateTeilnehmerError(null);
                       }}
                     >
-                      Abbrechen
+                      {tt('abbrechen')}
                     </Button>
                   </div>
                 </div>
@@ -361,15 +486,15 @@ export default function AnmeldungZahlungPage() {
         <div className="space-y-4">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div>
-              <h2 className="text-lg font-semibold">Kurs auswählen</h2>
+              <h2 className="text-lg font-semibold">{tt('kurs_auswaehlen')}</h2>
               <p className="text-sm text-muted-foreground mt-0.5">
-                Wähle den Kurs, für den{' '}
+                {tt('waehle_den_kurs_fuer_den')}{' '}
                 <span className="font-medium text-foreground">
                   {selectedTeilnehmer
                     ? `${selectedTeilnehmer.fields.vorname ?? ''} ${selectedTeilnehmer.fields.nachname ?? ''}`.trim()
                     : 'der Teilnehmer'}
                 </span>{' '}
-                angemeldet werden soll.
+                {tt('angemeldet_werden_soll')}
               </p>
             </div>
             <Button
@@ -378,7 +503,7 @@ export default function AnmeldungZahlungPage() {
               onClick={() => setStep(1)}
               className="shrink-0 text-muted-foreground"
             >
-              Teilnehmer ändern
+              {tt('teilnehmer_aendern')}
             </Button>
           </div>
 
@@ -397,10 +522,10 @@ export default function AnmeldungZahlungPage() {
           <EntitySelectStep
             items={availableKurse.map(k => ({
               id: k.record_id,
-              title: k.fields.titel ?? '(Kein Titel)',
+              title: k.fields.titel ?? tt('kein_titel'),
               subtitle: [
                 k.fields.startdatum ? k.fields.startdatum.slice(0, 10) : null,
-                k.fields.max_teilnehmer != null ? `${k.fields.max_teilnehmer} Plätze` : null,
+                k.fields.max_teilnehmer != null ? tt('plaetze', { p0: k.fields.max_teilnehmer }) : null,
               ]
                 .filter(Boolean)
                 .join(' | '),
@@ -408,14 +533,14 @@ export default function AnmeldungZahlungPage() {
                 ? { key: k.fields.status_kurs.key, label: k.fields.status_kurs.label }
                 : undefined,
               stats: [
-                { label: 'Preis', value: k.fields.preis != null ? `${k.fields.preis} €` : '–' },
-                ...(k.fields.niveau ? [{ label: 'Niveau', value: k.fields.niveau.label }] : []),
+                { label: tt('preis'), value: k.fields.preis != null ? `${k.fields.preis} €` : '–' },
+                ...(k.fields.niveau ? [{ label: tt('niveau'), value: k.fields.niveau.label }] : []),
               ],
               icon: <IconBook size={18} className="text-primary" />,
             }))}
             onSelect={handleSelectKurs}
-            searchPlaceholder="Kurs suchen..."
-            emptyText="Keine aktiven Kurse gefunden."
+            searchPlaceholder={tt('kurs_suchen')}
+            emptyText={tt('keine_aktiven_kurse_gefunden')}
           />
         </div>
       )}
@@ -424,22 +549,22 @@ export default function AnmeldungZahlungPage() {
       {step === 3 && (
         <div className="space-y-4">
           <div>
-            <h2 className="text-lg font-semibold">Anmeldung bestätigen</h2>
+            <h2 className="text-lg font-semibold">{tt('anmeldung_bestaetigen')}</h2>
             <p className="text-sm text-muted-foreground mt-0.5">
-              Prüfe die Auswahl und ergänze die Anmeldedaten.
+              {tt('pruefe_die_auswahl_und_ergaenze')}
             </p>
           </div>
 
           {/* Summary card */}
           <div className="rounded-2xl border bg-card p-4 space-y-3 overflow-hidden">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Zusammenfassung</p>
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{tt('zusammenfassung')}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="flex items-start gap-2">
                 <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
                   <IconUser size={15} className="text-primary" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs text-muted-foreground">Teilnehmer</p>
+                  <p className="text-xs text-muted-foreground">{tt('teilnehmer')}</p>
                   <p className="text-sm font-semibold truncate">
                     {selectedTeilnehmer
                       ? `${selectedTeilnehmer.fields.vorname ?? ''} ${selectedTeilnehmer.fields.nachname ?? ''}`.trim()
@@ -455,7 +580,7 @@ export default function AnmeldungZahlungPage() {
                   <IconBook size={15} className="text-primary" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs text-muted-foreground">Kurs</p>
+                  <p className="text-xs text-muted-foreground">{tt('kurs')}</p>
                   <p className="text-sm font-semibold truncate">{selectedKurs?.fields.titel ?? '–'}</p>
                   <p className="text-xs text-muted-foreground">
                     {selectedKurs?.fields.preis != null ? `${selectedKurs.fields.preis} €` : ''}
@@ -480,7 +605,7 @@ export default function AnmeldungZahlungPage() {
               <div className="space-y-1">
                 <label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
                   <IconCalendar size={13} />
-                  Anmeldedatum
+                  {tt('anmeldedatum')}
                 </label>
                 <Input
                   type="date"
@@ -491,7 +616,7 @@ export default function AnmeldungZahlungPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-medium text-muted-foreground">Status der Anmeldung</label>
+              <label className="text-xs font-medium text-muted-foreground">{tt('status_der_anmeldung')}</label>
               <div className="flex flex-wrap gap-2">
                 {STATUS_ANMELDUNG_OPTIONS.map(opt => (
                   <button
@@ -512,13 +637,13 @@ export default function AnmeldungZahlungPage() {
             <div className="space-y-1">
               <label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
                 <IconNotes size={13} />
-                Bemerkungen (optional)
+                {tt('bemerkungen_optional')}
               </label>
               <textarea
                 value={bemerkungenAnmeldung}
                 onChange={e => setBemerkungenAnmeldung(e.target.value)}
                 rows={3}
-                placeholder="Bemerkungen zur Anmeldung..."
+                placeholder={tt('bemerkungen_zur_anmeldung')}
                 className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
               />
             </div>
@@ -541,10 +666,10 @@ export default function AnmeldungZahlungPage() {
               ) : (
                 <IconCheck size={15} />
               )}
-              Anmeldung speichern
+              {tt('anmeldung_speichern')}
             </Button>
             <Button variant="outline" onClick={() => setStep(2)}>
-              Zurück
+              {tt('zurueck')}
             </Button>
           </div>
         </div>
@@ -554,9 +679,9 @@ export default function AnmeldungZahlungPage() {
       {step === 4 && !success && (
         <div className="space-y-4">
           <div>
-            <h2 className="text-lg font-semibold">Zahlung erfassen</h2>
+            <h2 className="text-lg font-semibold">{tt('zahlung_erfassen')}</h2>
             <p className="text-sm text-muted-foreground mt-0.5">
-              Erfasse die Zahlungsdaten für die soeben erstellte Anmeldung.
+              {tt('erfasse_die_zahlungsdaten_fuer_d')}
             </p>
           </div>
 
@@ -582,7 +707,7 @@ export default function AnmeldungZahlungPage() {
                   <div className="flex items-center gap-1.5">
                     <IconCurrencyEuro size={14} className="text-amber-600 shrink-0" />
                     <span className="text-sm font-semibold text-amber-700">
-                      {selectedKurs.fields.preis} € ausstehend
+                      {selectedKurs.fields.preis} {tt('ausstehend')}
                     </span>
                   </div>
                 </>
@@ -594,17 +719,17 @@ export default function AnmeldungZahlungPage() {
           <div className="rounded-2xl border bg-card p-4 space-y-4 overflow-hidden">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-xs font-medium text-muted-foreground">Rechnungsnummer</label>
+                <label className="text-xs font-medium text-muted-foreground">{tt('rechnungsnummer')}</label>
                 <Input
                   value={rechnungsnummer}
                   onChange={e => setRechnungsnummer(e.target.value)}
-                  placeholder="z. B. RE-2025-001"
+                  placeholder={tt('z_b_re_2025_001')}
                 />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
                   <IconCurrencyEuro size={13} />
-                  Betrag (€)
+                  {tt('betrag')}
                 </label>
                 <Input
                   type="number"
@@ -618,7 +743,7 @@ export default function AnmeldungZahlungPage() {
               <div className="space-y-1">
                 <label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
                   <IconCalendar size={13} />
-                  Zahlungsdatum
+                  {tt('zahlungsdatum')}
                 </label>
                 <Input
                   type="date"
@@ -629,7 +754,7 @@ export default function AnmeldungZahlungPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-medium text-muted-foreground">Zahlungsart</label>
+              <label className="text-xs font-medium text-muted-foreground">{tt('zahlungsart')}</label>
               <div className="flex flex-wrap gap-2">
                 {ZAHLUNGSART_OPTIONS.map(opt => (
                   <button
@@ -648,7 +773,7 @@ export default function AnmeldungZahlungPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-medium text-muted-foreground">Zahlungsstatus</label>
+              <label className="text-xs font-medium text-muted-foreground">{tt('zahlungsstatus')}</label>
               <div className="flex flex-wrap gap-2">
                 {ZAHLUNGSSTATUS_OPTIONS.map(opt => (
                   <button
@@ -669,13 +794,13 @@ export default function AnmeldungZahlungPage() {
             <div className="space-y-1">
               <label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
                 <IconNotes size={13} />
-                Notizen (optional)
+                {tt('notizen_optional')}
               </label>
               <textarea
                 value={notizenZahlung}
                 onChange={e => setNotizenZahlung(e.target.value)}
                 rows={3}
-                placeholder="Zahlungshinweise oder Notizen..."
+                placeholder={tt('zahlungshinweise_oder_notizen')}
                 className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
               />
             </div>
@@ -698,7 +823,7 @@ export default function AnmeldungZahlungPage() {
               ) : (
                 <IconCurrencyEuro size={15} />
               )}
-              Zahlung erfassen
+              {tt('zahlung_erfassen')}
             </Button>
           </div>
         </div>
@@ -713,29 +838,29 @@ export default function AnmeldungZahlungPage() {
             </div>
             <div>
               <h2 className="text-xl font-bold text-foreground">
-                Anmeldung & Zahlung erfolgreich gespeichert!
+                {tt('anmeldung_zahlung_erfolgreich_ge')}
               </h2>
               <p className="text-sm text-muted-foreground mt-1">
                 {selectedTeilnehmer
                   ? `${selectedTeilnehmer.fields.vorname ?? ''} ${selectedTeilnehmer.fields.nachname ?? ''}`.trim()
                   : 'Der Teilnehmer'}{' '}
-                wurde für{' '}
+                {tt('wurde_fuer')}{' '}
                 <span className="font-medium text-foreground">
-                  {selectedKurs?.fields.titel ?? 'den Kurs'}
+                  {selectedKurs?.fields.titel ?? tt('den_kurs')}
                 </span>{' '}
-                angemeldet und die Zahlung wurde erfasst.
+                {tt('angemeldet_und_die_zahlung_wurde')}
               </p>
             </div>
 
             <div className="flex gap-3 flex-wrap justify-center mt-2">
               <Button onClick={handleReset} variant="outline" className="gap-1.5">
                 <IconRefresh size={15} />
-                Neue Anmeldung
+                {tt('neue_anmeldung')}
               </Button>
               <a href="#/">
                 <Button className="gap-1.5">
                   <IconArrowRight size={15} />
-                  Zurück zum Dashboard
+                  {tt('zurueck_zum_dashboard')}
                 </Button>
               </a>
             </div>

@@ -15,6 +15,7 @@ import { RaeumeDialog } from '@/components/dialogs/RaeumeDialog';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { PageShell } from '@/components/PageShell';
 import { AI_PHOTO_SCAN, AI_PHOTO_LOCATION } from '@/config/ai-features';
+import { t, appLabel, fieldLabel, lookupLabel } from '@/i18n';
 
 export default function RaeumePage() {
   const navigate = useNavigate();
@@ -100,18 +101,18 @@ export default function RaeumePage() {
 
   return (
     <PageShell
-      title="Räume"
-      subtitle={`${records.length} Räume im System`}
+      title={appLabel('raeume')}
+      subtitle={`${records.length} ${t('in_system', { entity: appLabel('raeume') })}`}
       action={
         <Button onClick={() => setDialogOpen(true)} className="shrink-0 rounded-full shadow-sm">
-          <IconPlus className="h-4 w-4 mr-2" /> Hinzufügen
+          <IconPlus className="h-4 w-4 mr-2" /> {t('add')}
         </Button>
       }
     >
       <div className="relative w-full max-w-sm">
         <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Räume suchen..."
+          placeholder={t('search_entity', { entity: appLabel('raeume') })}
           value={search}
           onChange={e => setSearch(e.target.value)}
           className="pl-9"
@@ -123,47 +124,47 @@ export default function RaeumePage() {
             <TableRow className="border-b border-input">
               <TableHead className="uppercase text-xs font-semibold text-secondary-foreground tracking-wider px-6 cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => toggleSort('raumname')}>
                 <span className="inline-flex items-center gap-1">
-                  Raumname
+                  {fieldLabel('raeume', 'raumname')}
                   {sortKey === 'raumname' ? (sortDir === 'asc' ? <IconArrowUp size={14} /> : <IconArrowDown size={14} />) : <IconArrowsUpDown size={14} className="opacity-30" />}
                 </span>
               </TableHead>
               <TableHead className="uppercase text-xs font-semibold text-secondary-foreground tracking-wider px-6 cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => toggleSort('raumnummer')}>
                 <span className="inline-flex items-center gap-1">
-                  Raumnummer
+                  {fieldLabel('raeume', 'raumnummer')}
                   {sortKey === 'raumnummer' ? (sortDir === 'asc' ? <IconArrowUp size={14} /> : <IconArrowDown size={14} />) : <IconArrowsUpDown size={14} className="opacity-30" />}
                 </span>
               </TableHead>
               <TableHead className="uppercase text-xs font-semibold text-secondary-foreground tracking-wider px-6 cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => toggleSort('etage')}>
                 <span className="inline-flex items-center gap-1">
-                  Etage / Standort
+                  {fieldLabel('raeume', 'etage')}
                   {sortKey === 'etage' ? (sortDir === 'asc' ? <IconArrowUp size={14} /> : <IconArrowDown size={14} />) : <IconArrowsUpDown size={14} className="opacity-30" />}
                 </span>
               </TableHead>
               <TableHead className="uppercase text-xs font-semibold text-secondary-foreground tracking-wider px-6 cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => toggleSort('kapazitaet')}>
                 <span className="inline-flex items-center gap-1">
-                  Kapazität (Personen)
+                  {fieldLabel('raeume', 'kapazitaet')}
                   {sortKey === 'kapazitaet' ? (sortDir === 'asc' ? <IconArrowUp size={14} /> : <IconArrowDown size={14} />) : <IconArrowsUpDown size={14} className="opacity-30" />}
                 </span>
               </TableHead>
               <TableHead className="uppercase text-xs font-semibold text-secondary-foreground tracking-wider px-6 cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => toggleSort('ausstattung')}>
                 <span className="inline-flex items-center gap-1">
-                  Ausstattung
+                  {fieldLabel('raeume', 'ausstattung')}
                   {sortKey === 'ausstattung' ? (sortDir === 'asc' ? <IconArrowUp size={14} /> : <IconArrowDown size={14} />) : <IconArrowsUpDown size={14} className="opacity-30" />}
                 </span>
               </TableHead>
               <TableHead className="uppercase text-xs font-semibold text-secondary-foreground tracking-wider px-6 cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => toggleSort('bemerkungen_raum')}>
                 <span className="inline-flex items-center gap-1">
-                  Bemerkungen
+                  {fieldLabel('raeume', 'bemerkungen_raum')}
                   {sortKey === 'bemerkungen_raum' ? (sortDir === 'asc' ? <IconArrowUp size={14} /> : <IconArrowDown size={14} />) : <IconArrowsUpDown size={14} className="opacity-30" />}
                 </span>
               </TableHead>
               <TableHead className="uppercase text-xs font-semibold text-secondary-foreground tracking-wider px-6 cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => toggleSort('verfuegbar')}>
                 <span className="inline-flex items-center gap-1">
-                  Raum verfügbar
+                  {fieldLabel('raeume', 'verfuegbar')}
                   {sortKey === 'verfuegbar' ? (sortDir === 'asc' ? <IconArrowUp size={14} /> : <IconArrowDown size={14} />) : <IconArrowsUpDown size={14} className="opacity-30" />}
                 </span>
               </TableHead>
-              <TableHead className="w-24 uppercase text-xs font-semibold text-secondary-foreground tracking-wider px-6">Aktionen</TableHead>
+              <TableHead className="w-24 uppercase text-xs font-semibold text-secondary-foreground tracking-wider px-6">{t('actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -173,9 +174,9 @@ export default function RaeumePage() {
                 <TableCell>{record.fields.raumnummer ?? '—'}</TableCell>
                 <TableCell>{record.fields.etage ?? '—'}</TableCell>
                 <TableCell>{record.fields.kapazitaet ?? '—'}</TableCell>
-                <TableCell>{Array.isArray(record.fields.ausstattung) ? record.fields.ausstattung.map((v: any) => v?.label ?? v).join(', ') : '—'}</TableCell>
+                <TableCell>{Array.isArray(record.fields.ausstattung) ? record.fields.ausstattung.map((v: any) => lookupLabel('raeume', 'ausstattung', v?.key) ?? v?.label ?? v).join(', ') : '—'}</TableCell>
                 <TableCell className="max-w-xs"><span className="truncate block">{record.fields.bemerkungen_raum ?? '—'}</span></TableCell>
-                <TableCell><span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${record.fields.verfuegbar ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>{record.fields.verfuegbar ? 'Ja' : 'Nein'}</span></TableCell>
+                <TableCell><span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${record.fields.verfuegbar ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>{record.fields.verfuegbar ? t('yes') : t('no')}</span></TableCell>
                 <TableCell>
                   <div className="flex gap-1">
                     <Button variant="ghost" size="icon" onClick={() => setEditingRecord(record)}>
@@ -191,7 +192,7 @@ export default function RaeumePage() {
             {filtered.length === 0 && (
               <TableRow>
                 <TableCell colSpan={8} className="text-center py-16 text-muted-foreground">
-                  {search ? 'Keine Ergebnisse gefunden.' : 'Noch keine Räume. Jetzt hinzufügen!'}
+                  {search ? t('no_results') : t('no_data_yet', { entity: appLabel('raeume') })}
                 </TableCell>
               </TableRow>
             )}
@@ -213,8 +214,8 @@ export default function RaeumePage() {
         open={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
         onConfirm={handleDelete}
-        title="Räume löschen"
-        description="Soll dieser Eintrag wirklich gelöscht werden? Diese Aktion kann nicht rückgängig gemacht werden."
+        title={t('delete_entity', { entity: appLabel('raeume') })}
+        description={t('confirm_delete_desc')}
       />
 
     </PageShell>

@@ -14,6 +14,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { AI_PHOTO_SCAN, AI_PHOTO_LOCATION } from '@/config/ai-features';
 import { formEnhancements } from '@/config/form-enhancements/Raeume';
 import { evalComputed } from '@/config/form-enhancements/types';
+import { t, appLabel, fieldLabel, localeTag, CURRENCY } from '@/i18n';
 
 export default function RaeumeDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -56,11 +57,11 @@ export default function RaeumeDetailPage() {
   if (!record) {
     return (
       <RecordViewEmpty
-        title="Eintrag nicht gefunden"
+        title={t('not_found')}
         action={
           <Button variant="ghost" onClick={() => navigate('/raeume')}>
             <IconArrowLeft className="h-4 w-4 mr-1.5" />
-            Zurück
+            {t('back')}
           </Button>
         }
       />
@@ -71,18 +72,18 @@ export default function RaeumeDetailPage() {
     <RecordView
       onBack={() => navigate('/raeume')}
       onEdit={() => setEditing(true)}
-      backLabel="Zurück"
-      editLabel="Bearbeiten"
+      backLabel={t('back')}
+      editLabel={t('edit_button')}
     >
-      <RecordHeader title={record.fields.raumname ?? 'Räume'} />
+      <RecordHeader title={record.fields.raumname ?? appLabel('raeume')} />
 
       {(() => {
         const lookupLists: Record<string, unknown> = {
         };
         const fmtComputed = (k: string, n: number) =>
           /(?:kosten|preis|betrag|gesamt|netto|brutto|summe|mwst|rabatt|anzahlung|umsatz|saldo)/i.test(k)
-            ? n.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2, maximumFractionDigits: 2 })
-            : n.toLocaleString('de-DE', { maximumFractionDigits: 2 });
+            ? n.toLocaleString(localeTag(), { style: 'currency', currency: CURRENCY, minimumFractionDigits: 2, maximumFractionDigits: 2 })
+            : n.toLocaleString(localeTag(), { maximumFractionDigits: 2 });
         const computedFacts = Object.entries(formEnhancements.computed)
           .map(([key, formula]) => {
             const v = evalComputed(formula, record!.fields as Record<string, unknown>, { lookupLists });
@@ -94,14 +95,14 @@ export default function RaeumeDetailPage() {
         return computedFacts.length > 0 ? <RecordKeyFacts items={computedFacts} /> : null;
       })()}
 
-      <RecordSection title="Details" cols={2}>
-        <RecordField label="Raumname" value={record.fields.raumname} format="text" />
-        <RecordField label="Raumnummer" value={record.fields.raumnummer} format="text" />
-        <RecordField label="Etage / Standort" value={record.fields.etage} format="text" />
-        <RecordField label="Kapazität (Personen)" value={record.fields.kapazitaet} format="text" />
-        <RecordField label="Ausstattung" value={Array.isArray(record.fields.ausstattung) ? record.fields.ausstattung.map((v: unknown) => (v && typeof v === 'object' && 'label' in v) ? (v as {label: unknown}).label : v).join(', ') : null} format="text" />
-        <RecordField label="Bemerkungen" value={record.fields.bemerkungen_raum} format="longtext" className="md:col-span-2" />
-        <RecordField label="Raum verfügbar" value={record.fields.verfuegbar} format="bool" />
+      <RecordSection title={t('details')} cols={2}>
+        <RecordField label={fieldLabel('raeume', 'raumname')} value={record.fields.raumname} format="text" />
+        <RecordField label={fieldLabel('raeume', 'raumnummer')} value={record.fields.raumnummer} format="text" />
+        <RecordField label={fieldLabel('raeume', 'etage')} value={record.fields.etage} format="text" />
+        <RecordField label={fieldLabel('raeume', 'kapazitaet')} value={record.fields.kapazitaet} format="text" />
+        <RecordField label={fieldLabel('raeume', 'ausstattung')} value={Array.isArray(record.fields.ausstattung) ? record.fields.ausstattung.map((v: unknown) => (v && typeof v === 'object' && 'label' in v) ? (v as {label: unknown}).label : v).join(', ') : null} format="text" />
+        <RecordField label={fieldLabel('raeume', 'bemerkungen_raum')} value={record.fields.bemerkungen_raum} format="longtext" className="md:col-span-2" />
+        <RecordField label={fieldLabel('raeume', 'verfuegbar')} value={record.fields.verfuegbar} format="bool" />
       </RecordSection>
 
       <RecordAttachments appId={APP_IDS.RAEUME} recordId={record.record_id} />
@@ -109,7 +110,7 @@ export default function RaeumeDetailPage() {
       <div className="flex justify-end pt-2">
         <Button variant="ghost" onClick={() => setDeleteOpen(true)} className="text-destructive hover:text-destructive">
           <IconTrash className="h-4 w-4 mr-1.5" />
-          Löschen
+          {t('delete')}
         </Button>
       </div>
 
@@ -127,8 +128,8 @@ export default function RaeumeDetailPage() {
         open={deleteOpen}
         onClose={() => setDeleteOpen(false)}
         onConfirm={handleDelete}
-        title="Räume löschen"
-        description="Soll dieser Eintrag wirklich gelöscht werden? Diese Aktion kann nicht rückgängig gemacht werden."
+        title={t('delete_entity', { entity: appLabel('raeume') })}
+        description={t('confirm_delete_desc')}
       />
     </RecordView>
   );
